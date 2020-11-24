@@ -7,7 +7,7 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 
-//参考1：SoundPool的使用
+//参考1：SoundPool的使用 音效池
 public class SoundPoolHelper    //这个工具类实测解决了Android高版本不能正常播放资源文件的问题！并且调用一句代码即可new SoundPoolHelper(context).playSoundWithRedId(R.raw.gun);
 {
     private SoundPool mainSoundPool;

@@ -59,12 +59,12 @@ public class page3 extends AppCompatActivity {
              */
             x=Integer.parseInt( message1 );//用于后面的结算
             //int x=bundle.getInt("stage");
-            if(message1.equals("1"))        {setContentView(Stage1_SurfaceView.Init(this));}
+            if(message1.equals("1"))        {setContentView(R.layout.content_stage1);}
             //if(message1.equals("1"))        {Stage1_SurfaceView.player=player;Stage1_SurfaceView.dif=dif;Stage1_SurfaceView.str=str;Stage1_SurfaceView.dex=dex;Stage1_SurfaceView.dex_area=dex_area;Stage1_SurfaceView.hp=hp;Stage1_SurfaceView.skill=skill;setContentView(Stage1_SurfaceView.Init(this));}
-            else if(message1.equals("2"))   {setContentView(Stage2_SurfaceView.Init(this));}
-            else if(message1.equals("3"))   {setContentView(Stage3_SurfaceView.Init(this));}
-            else if(message1.equals("4"))   {setContentView(Stage4_SurfaceView.Init(this));}
-            else if(message1.equals("5"))   {setContentView(Stage5_SurfaceView.Init(this));}
+            else if(message1.equals("2"))   {setContentView(R.layout.content_stage2);}
+            else if(message1.equals("3"))   {setContentView(R.layout.content_stage3);}
+            else if(message1.equals("4"))   {setContentView(R.layout.content_stage4);}
+            else if(message1.equals("5"))   {setContentView(R.layout.content_stage5);}
             //setContentView(new Stage1_SurfaceView(page3.this));基本版本
             //setContentView(R.layout.content_stage1);XML版本
             //setContentView(Stage1_SurfaceView.Init(this));单例版本
@@ -75,10 +75,10 @@ public class page3 extends AppCompatActivity {
         istimer=false;
         //button2 = (Button) findViewById(R.id.button02);//返回+结算功能
         this.initDB();
-        this.initHandler();
+        //this.initHandler();
         this.initTimerTask();
         //this.initProperty();
-        //this.initListeners();
+        this.initListeners();
     }
     private void initDB() {
         helper2 = new MySQLite(page3.this);
@@ -94,12 +94,21 @@ public class page3 extends AppCompatActivity {
         };
     }
 
-    //监听游戏结束 标志1：玩家失败  标志2：玩家胜利并开箱
+    //监听游戏结束 标志1：玩家失败  标志2：玩家胜利并开箱 后可以自动弹出菜单 TODO （更新加入了按键，已改成开箱秒发放奖励）
     private void initTimerTask(){
         timer = new Timer();
         task = new TimerTask() {
             @Override
             public void run() {//这个run 的使用就是开启了一个新的线程，在这个子线程中是无法更新UI 的
+                switch (x){
+                    case 1:if(Stage1_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    case 2:if(Stage2_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    case 3:if(Stage3_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    case 4:if(Stage4_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    case 5:if(Stage5_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    default: break;
+                }
+                /*
                 if(!istimer){
                     switch (x){
                         case 1:
@@ -107,21 +116,9 @@ public class page3 extends AppCompatActivity {
                             else if(Stage1_SurfaceView.isEnd) istimer=true;
                             break;
                         case 2:
-                            if(Stage2_SurfaceView.rec>0) istimer=true;
-                            else if(Stage2_SurfaceView.isEnd) istimer=true;
-                            break;
                         case 3:
-                            if(Stage3_SurfaceView.rec>0) istimer=true;
-                            else if(Stage3_SurfaceView.isEnd) istimer=true;
-                            break;
                         case 4:
-                            if(Stage4_SurfaceView.rec>0) istimer=true;
-                            else if(Stage4_SurfaceView.isEnd) istimer=true;
-                            break;
                         case 5:
-                            if(Stage5_SurfaceView.rec>0) istimer=true;
-                            else if(Stage5_SurfaceView.isEnd) istimer=true;
-                            break;
                         default: break;
                     }
                     if(istimer){
@@ -130,9 +127,10 @@ public class page3 extends AppCompatActivity {
                         handler1.sendMessage(msg);
                     }
                 }
+                * */
             }
         };
-        timer.schedule(task, 0, 10000);
+        timer.schedule(task, 0, 1000);
     }
 
     private void updateData(int id) {//更新-即抽到的物品数量+1
@@ -140,7 +138,6 @@ public class page3 extends AppCompatActivity {
         String sql = "UPDATE " + helper2.ITEM_NAME + " SET number=number+1 WHERE id=" + id;
         mydb2.execSQL(sql);
     }
-
 
     //暂停并显示游戏菜单
     private void show_menu(){
@@ -195,6 +192,7 @@ public class page3 extends AppCompatActivity {
         alert.create().show();
     }
 
+    //按钮触发界面
     private void initListeners() {
         button1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -205,22 +203,24 @@ public class page3 extends AppCompatActivity {
 
     }
 
+    //BACK按键触发界面
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {//BAKC按键触发，有这个或可取代两个按钮?
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
         if(keyCode==KeyEvent.KEYCODE_BACK){
             show_menu();
         }
         return false;
     }
 
+    //切后台时弹窗并暂停
     @Override
-    public void onStop(){//onstop中用于切屏弹窗并暂停
+    public void onStop(){
         super.onStop();
         show_menu();
     }
 
-    @Override
-    public void onDestroy(){
+    //结算并获得奖励
+    private void get_award(){
         int id=0;//id值范围为0-20 0表示未成功开箱
         switch(x){
             case 1: {
@@ -357,6 +357,11 @@ public class page3 extends AppCompatActivity {
             }
             default:break;
         }
+    }
+
+    @Override
+    public void onDestroy(){
+
         //button1.setVisibility(View.VISIBLE);
         //跳转(不用？)
         //SoundPoolHelper xxx=new SoundPoolHelper(this);

@@ -7,8 +7,8 @@ android {
         applicationId "com.example.once_a_day"
         minSdkVersion 18
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.1.5"
+        versionCode 20
+        versionName "1.2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

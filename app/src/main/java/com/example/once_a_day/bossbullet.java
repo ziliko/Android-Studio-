@@ -426,6 +426,7 @@ public class bossbullet {
     //EX冰之梦 ？？？
 
 
+    //TODO ☆☆☆☆  碰撞检测  ☆☆☆☆
     //子弹碰撞处理+ 提前结束生命(圆形)
     public boolean crash(int myX,int myY,int myW,int myR) {//玩家判定范围会变动，需要外部处理好当前范围
         //玩家范围为圆形，需要不同半径

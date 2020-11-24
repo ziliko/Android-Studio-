@@ -5,11 +5,15 @@
     android:layout_height="fill_parent" >
 
 
-    <com.example.once_a_day.Stage4_SurfaceView
-        android:id="@+id/Stage4View"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-
+        android:layout_height="wrap_content">
+        <com.example.once_a_day.Stage4_SurfaceView
+            android:id="@+id/innerView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+        </com.example.once_a_day.Stage4_SurfaceView>
+    </FrameLayout>
 
     <Button
         android:id="@+id/button01"
@@ -17,24 +21,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:text="菜单" />
-    <!--注释内容 -->
-    <!--注释内容
-    <Button
-        android:id="@+id/button01"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="100dp"
-        android:text="暂停|继续" />
-    <Button
-        android:id="@+id/button02"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="100dp"
-        android:layout_above="@id/button01"
-        android:text="功能未定" />
-        -->
+        android:text="Menu" />
+
 </RelativeLayout>
