@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background2"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:weightSum="720">
+
+        <TextView
+            android:id="@+id/text01"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="30"
+            android:text="GAME"
+            android:textColor="#43F403"
+            android:textSize="24sp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="40">
+            <TextView
+                android:id="@+id/text02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="手动获得奖励(测试人员)："
+                android:textColor="#03F463" />
+            <EditText
+                android:id="@+id/edit01"
+                android:layout_width="105dp"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:textColor="#FA0505" />
+            <Button
+                android:id="@+id/button00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="手动修改" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="40">
+            <TextView
+                android:id="@+id/textView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="掉落物品X"
+                android:textColor="#03C4F4"
+                android:textSize="20sp" />
+            <Button
+                android:id="@+id/button001"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="云存档" />
+            <Button
+                android:id="@+id/button002"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="云读档" />
+            <TextView
+                android:id="@+id/textView02"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="掉落概率%"
+                android:gravity="right"
+                android:textColor="#03C4F4"
+                android:textSize="20sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="30"
+            android:background="#4DFFFFFF"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/textView03"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="玩家:"
+                android:textColor="#D003F4"
+                android:textSize="20sp" />
+            <Spinner
+                android:id="@+id/spinner01"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/textView04"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="难度:"
+                android:textColor="#D003F4"
+                android:textSize="20sp" />
+            <Spinner
+                android:id="@+id/spinner02"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="240"
+            android:stretchColumns="1">
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/textView11"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:text="力量A E I N"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stage1"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/button01" />
+                <TextView
+                    android:id="@+id/textView12"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="40 10 0  0 "
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/textView21"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="灵巧B F J O"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stage2"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/button02" />
+                <TextView
+                    android:id="@+id/textView22"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="(上同)"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:id="@+id/textView31"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="体力C G K P"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stage3"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/button03" />
+                <TextView
+                    android:id="@+id/textView32"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(上同)"
+                    android:gravity="right"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/textView41"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="技能D H L Q"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stage4"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/button04" />
+                <TextView
+                    android:id="@+id/textView42"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="(上同)"
+                    android:textColor="#75D6FD"
+                    android:textSize="20sp" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:id="@+id/textView51"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="全能M R "
+                    android:textColor="#75D6FD"
+                    android:textSize="24sp" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="stage5"
+                    android:layout_gravity="center_horizontal"
+                    android:id="@+id/button05" />
+                <TextView
+                    android:id="@+id/textView52"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:text="10  0"
+                    android:textColor="#75D6FD"
+                    android:textSize="24sp" />
+            </TableRow>
+        </TableLayout>
+
+        <ImageView
+            android:id="@+id/image02"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:background="#03A9F4" />
+
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="96"
+            >
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="修改账密"
+                    android:id="@+id/button061" />
+                <Button
+                    android:id="@+id/button062"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="修改设置" />
+                <Button
+                    android:id="@+id/button063"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="修改装备" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="结束游戏"
+                    android:layout_weight="1"
+                    android:id="@+id/button064" />
+            </TableRow>
+
+            <TableRow
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <Button
+                    android:id="@+id/button071"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看公告" />
+                <Button
+                    android:id="@+id/button072"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看属性" />
+                <Button
+                    android:id="@+id/button073"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看装备" />
+                <Button
+                    android:id="@+id/button074"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看背包" />
+            </TableRow>
+        </TableLayout>
+
+
+        <ScrollView
+            android:layout_width="fill_parent"
+            android:layout_height="240dp"
+            android:layout_weight="240"
+            android:background="@drawable/textbg">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/text10"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textColor="#43F403"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+        </ScrollView>
+
+
+        <!--注释内容 -->
+    </LinearLayout>
+</LinearLayout>
