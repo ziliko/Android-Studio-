@@ -325,7 +325,7 @@ public class Stage4_SurfaceView extends Stage_Father{//父类只能一个,接口
 
             }
         };
-        timer2.schedule(task2, 1000, 20);
+        timer2.schedule(task2, 3000, 20);
     }
 
     //主函数

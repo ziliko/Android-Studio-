@@ -356,7 +356,7 @@ public class Stage5_SurfaceView extends Stage_Father{//父类只能一个,接口
 
             }
         };
-        timer2.schedule(task2, 1000, 20);
+        timer2.schedule(task2, 3000, 20);
     }
 
     public void mediaplayerDestroyed() {//内存回收涉及知识较多，重难点

@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+//TODO 作为参考，实际并未用到
+
 public class Dialog extends AppCompatActivity {
 
     @Override

@@ -14,6 +14,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
     int sensitivity;//触屏灵敏度
 
     int bggundong;//控制背景滚动
+    double Alpha=0; //设置透明程度，开始游戏时渐变至不透明 0~255
     public static int rec;//返回数据
     public static int stop;//控制暂停
     int rec_t;
@@ -270,8 +272,6 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         skill=sp.getInt("skill", 0);
         sensitivity=sp.getInt("sensitivity", 100);
 
-        stop=0;
-        rec=0;
         section=2;
         mylife=hp;//9999+ 为上帝模式 hp
         mypower=2;
@@ -431,15 +431,19 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                 else delay_clock++;//独立延时数：游戏结束后用于延迟1秒开箱 50=1s
             }
         };
-        timer.schedule(task, 1000, 20);
+        timer.schedule(task, 3000, 20);
     }
 
-    //定时器3：控制自机技能动画效果和伤害效果
+    //定时器3：控制自机技能动画效果和伤害效果 以及一些其他的变量
     private void initTimerTask3() {
         timer3 = new Timer();
         task3 = new TimerTask() {
             @Override
             public void run() {
+                //控制音乐暂停/继续
+                if(stop==1&&mediaplayer.isPlaying()) mediaplayer.pause();
+                if(stop==0&&!mediaplayer.isPlaying()) mediaplayer.start();
+                //控制技能
                 if (stop == 0&&isSkill) {
                     if(mylife>9999) {bosslife=0;isSkill = false;}//上帝模式开技能则秒杀
                     else{
@@ -513,10 +517,10 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                         //skillPic=pics.get(curIndex);
                     }
                 }
-                else if(!isSkill&&skillflag==1) {skillflag = 0;delay_damage=0;}//结束后的清洗
+                else if(!isSkill&&skillflag==1) {skillflag = 0;delay_damage=0;}//时停结束后的清洗？
             }
         };
-        timer3.schedule(task3, 0, 20);
+        timer3.schedule(task3, 1000, 20);
     }
 
 
@@ -529,6 +533,11 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         while (flag) {
             //if(stop==0){
             long start = System.currentTimeMillis();
+            //渐变不透明程度 2.04秒
+            if(Alpha<255&&stop==0) {
+                Alpha+=2.5;
+                paint.setAlpha((int)Alpha);
+            }
             myDraw();
             long end = System.currentTimeMillis();
             long interval = end - start;
@@ -543,11 +552,12 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         }
     }
 
-    // SurfaceView被创建时的回调函数
+    // SurfaceView被创建时的回调函数 切屏再打开也会调用（因为切屏后surfaceview直接销毁+新建？）
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
         //myDraw();
         //rec=0;stop=0;
+        //Toast.makeText(context, "surfaceCreated调用", Toast.LENGTH_SHORT).show();
         screenWidth = getWidth();
         screenHeight = getHeight();
         myWidth = me.getWidth();
@@ -567,20 +577,20 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
             myX=screenWidth/2-myWidth/2;
             myY=downline-myHeight;
         }
-        int x=pic1.getWidth()/2;//方向键中心x坐标
-        int y=screenHeight-pic1.getHeight()/2;//方向键中心y坐标
-        int z=pic1.getWidth()/7;
-        upArea = new Rect(x-z,screenHeight-pic1.getHeight(),x+z,y-z);
-        leftArea = new Rect(0,y-z,x-z,y+z);
-        rightArea = new Rect(x+z,y-z,pic1.getWidth(),y+z);
-        downArea = new Rect(x-z,y+z,x+z,screenHeight);
-        Area_half = new Rect(x-z*9/4,y-z*9/4,x+z*9/4,y+z*9/4);
-        buttonArea=new Rect(screenWidth-pic2.getWidth()-50,screenHeight- pic2.getHeight()-50,screenWidth-50,screenHeight-50);
+        //int x=pic1.getWidth()/2;//方向键中心x坐标
+        //int y=screenHeight-pic1.getHeight()/2;//方向键中心y坐标
+        //int z=pic1.getWidth()/7;
+        //upArea = new Rect(x-z,screenHeight-pic1.getHeight(),x+z,y-z);
+        //leftArea = new Rect(0,y-z,x-z,y+z);
+        //rightArea = new Rect(x+z,y-z,pic1.getWidth(),y+z);
+        //downArea = new Rect(x-z,y+z,x+z,screenHeight);
+        //Area_half = new Rect(x-z*9/4,y-z*9/4,x+z*9/4,y+z*9/4);
+        //buttonArea=new Rect(screenWidth-pic2.getWidth()-50,screenHeight- pic2.getHeight()-50,screenWidth-50,screenHeight-50);
 
         flag = true;
         th = new Thread(this);
         th.start();
-        mediaplayer.start();
+        //mediaplayer.start();//改成定时器根据stop控制了，现在音乐也受stop影响了
     }
 
     // SurfaceView状态改变时的回调函数
@@ -594,7 +604,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
     public void surfaceDestroyed(SurfaceHolder holder) {
         flag = false;
         stop=1;
-        mediaplayer.pause();//用于切屏回来后继续播放音乐
+        if(mediaplayer.isPlaying()) mediaplayer.pause();//用于切屏回来后继续播放音乐
     }
 
     protected void myDraw() {

@@ -306,7 +306,7 @@ public class Stage1_SurfaceView extends Stage_Father{
 
             }
         };
-        timer2.schedule(task2, 1000, 20);
+        timer2.schedule(task2, 3000, 20);
     }
 
     //主函数 (覆盖父类方法 且为final) TODO 各关卡不同(大概)

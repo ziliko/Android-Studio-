@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -40,6 +41,7 @@ public class page3 extends AppCompatActivity {
     private static TimerTask task;
     private Handler handler1;//用于更新监听线程？
     private boolean istimer;//定时器是否反应
+    private boolean only_dialog;//确保弹窗的唯一性
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,55 +143,61 @@ public class page3 extends AppCompatActivity {
 
     //暂停并显示游戏菜单
     private void show_menu(){
-        istimer=true;
-        switch(x) {//控制暂停
-            case 1: { Stage1_SurfaceView.stop = 1;break; }
-            case 2: { Stage2_SurfaceView.stop = 1;break; }
-            case 3: { Stage3_SurfaceView.stop = 1;break; }
-            case 4: { Stage4_SurfaceView.stop = 1;break; }
-            case 5: { Stage5_SurfaceView.stop = 1;break; }
-            default: break;
-        }
-        AlertDialog.Builder alert=new AlertDialog.Builder(this);
-        alert.setTitle("少女折寿中......")
-                .setMessage("操作说明："+
-                        "\n     1:单指触屏控制移动"+
-                        "\n     2:双指触屏使用技能"+
-                        "\n 温馨提示："+
-                        "\n     1:每擦弹10次能回蓝"+
-                        "\n     2:退出前记得开箱");
-        alert.setNegativeButton("结束游戏", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //Process.killProcess(Process.myPid());
-                switch (x){
-                    case 1:Stage1_SurfaceView.end();break;
-                    case 2:Stage2_SurfaceView.end();break;
-                    case 3:Stage3_SurfaceView.end();break;
-                    case 4:Stage4_SurfaceView.end();break;
-                    case 5:Stage5_SurfaceView.end();break;
-                    default:break;
-                }
-                finish();
+        if(!only_dialog){//确保对话框的唯一
+            only_dialog=true;
+            switch(x) {//控制暂停
+                case 1: { Stage1_SurfaceView.stop = 1;break; }
+                case 2: { Stage2_SurfaceView.stop = 1;break; }
+                case 3: { Stage3_SurfaceView.stop = 1;break; }
+                case 4: { Stage4_SurfaceView.stop = 1;break; }
+                case 5: { Stage5_SurfaceView.stop = 1;break; }
+                default: break;
             }
-        });
+            AlertDialog.Builder alert=new AlertDialog.Builder(this,1);//默认5
+            //View view = LayoutInflater.from(this.getBaseContext()).inflate(R.layout.mydialog,null,false);
+            //alert.setView(view);//自定义对话框
+            alert.setTitle("少女折寿中......")
+                    .setMessage("操作说明："+
+                            "\n     1:单指触屏控制移动"+
+                            "\n     2:双指触屏使用技能"+
+                            "\n 温馨提示："+
+                            "\n     1:每擦弹10次能回蓝"+
+                            "\n     2:退出前记得开箱");
+            alert.setNegativeButton("结束游戏", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //Process.killProcess(Process.myPid());
+                    only_dialog=false;
+                    switch (x){
+                        case 1:Stage1_SurfaceView.end();break;
+                        case 2:Stage2_SurfaceView.end();break;
+                        case 3:Stage3_SurfaceView.end();break;
+                        case 4:Stage4_SurfaceView.end();break;
+                        case 5:Stage5_SurfaceView.end();break;
+                        default:break;
+                    }
+                    finish();
+                }
+            });
 
-        alert.setPositiveButton("继续游戏", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                istimer=false;
-                switch(x) {//控制暂停
-                    case 1: { Stage1_SurfaceView.stop = 0;break; }
-                    case 2: { Stage2_SurfaceView.stop = 0;break; }
-                    case 3: { Stage3_SurfaceView.stop = 0;break; }
-                    case 4: { Stage4_SurfaceView.stop = 0;break; }
-                    case 5: { Stage5_SurfaceView.stop = 0;break; }
-                    default: break;
+            alert.setPositiveButton("继续游戏", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    //istimer=false;
+                    only_dialog=false;
+                    switch(x) {//控制暂停
+                        case 1: { Stage1_SurfaceView.stop = 0;break; }
+                        case 2: { Stage2_SurfaceView.stop = 0;break; }
+                        case 3: { Stage3_SurfaceView.stop = 0;break; }
+                        case 4: { Stage4_SurfaceView.stop = 0;break; }
+                        case 5: { Stage5_SurfaceView.stop = 0;break; }
+                        default: break;
+                    }
                 }
-            }
-        });
-        alert.setCancelable(false);//弹窗时即使BACK也不关闭
-        alert.create().show();
+            });
+            alert.setCancelable(false);//弹窗时即使BACK也不关闭
+            alert.create().show();
+        }
     }
 
     //按钮触发界面
