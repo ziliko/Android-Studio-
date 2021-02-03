@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,7 +31,7 @@ import java.util.TimerTask;
  **
  */
 public class page3 extends AppCompatActivity {
-
+    private static final String TAG = "page3";
     private MySQLite helper2;
     private SQLiteDatabase mydb2;
     private Button button1,button2;
@@ -103,11 +104,11 @@ public class page3 extends AppCompatActivity {
             @Override
             public void run() {//这个run 的使用就是开启了一个新的线程，在这个子线程中是无法更新UI 的
                 switch (x){
-                    case 1:if(Stage1_SurfaceView.isEnd2) get_award();timer.cancel();break;
-                    case 2:if(Stage2_SurfaceView.isEnd2) get_award();timer.cancel();break;
-                    case 3:if(Stage3_SurfaceView.isEnd2) get_award();timer.cancel();break;
-                    case 4:if(Stage4_SurfaceView.isEnd2) get_award();timer.cancel();break;
-                    case 5:if(Stage5_SurfaceView.isEnd2) get_award();timer.cancel();break;
+                    case 1:if(Stage1_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
+                    case 2:if(Stage2_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
+                    case 3:if(Stage3_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
+                    case 4:if(Stage4_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
+                    case 5:if(Stage5_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
                     default: break;
                 }
                 /*
@@ -230,6 +231,8 @@ public class page3 extends AppCompatActivity {
     //结算并获得奖励
     private void get_award(){
         int id=0;//id值范围为0-20 0表示未成功开箱
+        //子线程直接弹Toast的处理方法
+        Looper.prepare();
         switch(x){
             case 1: {
                 id=Stage1_SurfaceView.rec;//调用surfaceview的参数
@@ -284,6 +287,7 @@ public class page3 extends AppCompatActivity {
                     }
                 }
                 else Toast.makeText(page3.this, "谢谢参与", Toast.LENGTH_SHORT).show();
+                //else new AlertDialog.Builder(page3.this).setTitle("结算").setMessage("谢谢参与！").show();
                 Stage2_SurfaceView.rec=0;//重置
                 //Stage2_SurfaceView.stop=0;
                 break;
@@ -365,6 +369,7 @@ public class page3 extends AppCompatActivity {
             }
             default:break;
         }
+        Looper.loop();
     }
 
     @Override

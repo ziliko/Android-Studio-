@@ -47,8 +47,8 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             "\n※※版本更新1.0.8※※\n1.加入触屏控制"+
             "\n※※版本更新1.0.7※※\n1.技能系统已实装"+
             "\n※※版本更新1.0.5※※\n1.装备系统已实装\n2.云档功能不可用(需要服务器)\n3.装备合成实装需讨论\n4.新手上路，请多指BUG\n";
-            ;
 
+    private static final String TAG = "page2";
     private int player,difficuliy;
     private Spinner spinner1, spinner2;
     private static final String[] PLAYERS = {"白毛", "蓝毛","紫毛","画家?"};
@@ -89,6 +89,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         this.initSpinner();
     }
 
+    //音效池初始化
     private void initPigSoundPool(){
         //PigSoundPlayer mySoundPlayer;
         //每关固定有6个ID，surfaceview destroy时需要根据ID清空当前soundpook
@@ -110,6 +111,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         PigSoundPlayer.getLoader(page2.this).load("wind",R.raw.wind,1);
     }
 
+    //数据库初始化
     private void initDB() {
         helper = new MySQLite(page2.this);
         mydb = helper.getWritableDatabase();
@@ -139,6 +141,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         }
     }
 
+    //控件初始化
     private void initViews() {
         edit1 = (EditText) findViewById(R.id.edit01);
         text12=(TextView) findViewById(R.id.textView12);
@@ -164,6 +167,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         sp = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
     }
 
+    //身上装备初始化（即退出再进入时保留先前的）
     private void initProperty() {
         str=10;dex=6;dex_area=100;hp=2;skill=0;
         String equip1=sp.getString("equipment1","无");//A型源码
@@ -206,6 +210,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         };
     }
 
+    //按键事件监控
     private void initListeners() {
         /*
         button1.setOnClickListener(new View.OnClickListener() {
