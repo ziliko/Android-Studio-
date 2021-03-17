@@ -3,6 +3,7 @@ package com.example.once_a_day;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
@@ -51,6 +52,10 @@ public class page3 extends AppCompatActivity {
         if (bundle != null) {
             //加入获取装备信息并修改surface里的参数
             message1 = bundle.getString("stage");
+
+            SharedPreferences sp=this.getSharedPreferences("zks", MODE_PRIVATE);
+            player=sp.getInt("player", 0);
+            dif=sp.getInt("dif", 0);
             /*
             player=bundle.getInt("player");
             dif=bundle.getInt("dif");
@@ -59,7 +64,7 @@ public class page3 extends AppCompatActivity {
             dex_area=bundle.getInt("dex_area");
             hp=bundle.getInt("hp");
             skill=bundle.getInt("skill");
-             */
+            */
             x=Integer.parseInt( message1 );//用于后面的结算
             //int x=bundle.getInt("stage");
             if(message1.equals("1"))        {setContentView(R.layout.content_stage1);}
@@ -68,6 +73,7 @@ public class page3 extends AppCompatActivity {
             else if(message1.equals("3"))   {setContentView(R.layout.content_stage3);}
             else if(message1.equals("4"))   {setContentView(R.layout.content_stage4);}
             else if(message1.equals("5"))   {setContentView(R.layout.content_stage5);}
+            else if(message1.equals("10"))   {setContentView(R.layout.content_stage_a);}
             //setContentView(new Stage1_SurfaceView(page3.this));基本版本
             //setContentView(R.layout.content_stage1);XML版本
             //setContentView(Stage1_SurfaceView.Init(this));单例版本
@@ -109,6 +115,7 @@ public class page3 extends AppCompatActivity {
                     case 3:if(Stage3_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
                     case 4:if(Stage4_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
                     case 5:if(Stage5_SurfaceView.isEnd2) {get_award();timer.cancel();}break;
+                    case 10:if(StageA2_SV.isEnd2) {get_award();timer.cancel();}break;
                     default: break;
                 }
                 /*
@@ -136,9 +143,14 @@ public class page3 extends AppCompatActivity {
         timer.schedule(task, 0, 1000);
     }
 
-    private void updateData(int id) {//更新-即抽到的物品数量+1
+    private void updateData(int id,int n) {//更新-物品数量 + n
         //String sql = "UPDATE " + helper.TABLE_NAME + " SET major=" + major + " WHERE id=" + id;
-        String sql = "UPDATE " + helper2.ITEM_NAME + " SET number=number+1 WHERE id=" + id;
+        String sql = "UPDATE " + helper2.ITEM_NAME + " SET number=number+n WHERE id=" + id;
+        mydb2.execSQL(sql);
+    }
+    private void updateData(int id) {//更新-物品数量 固定为1
+        //String sql = "UPDATE " + helper.TABLE_NAME + " SET major=" + major + " WHERE id=" + id;
+        String sql = "UPDATE " + helper2.ITEM_NAME + " SET number=1 WHERE id=" + id;
         mydb2.execSQL(sql);
     }
 
@@ -152,6 +164,7 @@ public class page3 extends AppCompatActivity {
                 case 3: { Stage3_SurfaceView.stop = 1;break; }
                 case 4: { Stage4_SurfaceView.stop = 1;break; }
                 case 5: { Stage5_SurfaceView.stop = 1;break; }
+                case 10: { StageA2_SV.stop = 1;break; }
                 default: break;
             }
             AlertDialog.Builder alert=new AlertDialog.Builder(this,1);//默认5
@@ -175,6 +188,7 @@ public class page3 extends AppCompatActivity {
                         case 3:Stage3_SurfaceView.end();break;
                         case 4:Stage4_SurfaceView.end();break;
                         case 5:Stage5_SurfaceView.end();break;
+                        case 10:Stage5_SurfaceView.end();break;
                         default:break;
                     }
                     finish();
@@ -192,6 +206,7 @@ public class page3 extends AppCompatActivity {
                         case 3: { Stage3_SurfaceView.stop = 0;break; }
                         case 4: { Stage4_SurfaceView.stop = 0;break; }
                         case 5: { Stage5_SurfaceView.stop = 0;break; }
+                        case 10: { StageA2_SV.stop = 0;break; }
                         default: break;
                     }
                 }
@@ -237,6 +252,119 @@ public class page3 extends AppCompatActivity {
             case 1: {
                 id=Stage1_SurfaceView.rec;//调用surfaceview的参数
                 if(id==0) break;
+                if(dif==2)  Toast.makeText(page3.this, "你征服了这个关卡！", Toast.LENGTH_SHORT).show();
+                else if(id>10){
+                    switch (dif){
+                        case 0:
+                            updateData(10);Toast.makeText(page3.this, "已获得力Ⅰ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(11);Toast.makeText(page3.this, "已获得力Ⅱ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else Toast.makeText(page3.this, "硬币反面朝上，没有奖励", Toast.LENGTH_SHORT).show();
+                Stage1_SurfaceView.rec=0;//重置
+                break;
+            }
+            case 2:{
+                id=Stage2_SurfaceView.rec;//调用surfaceview的参数
+                if(id==0) break;
+                if(dif==2)  Toast.makeText(page3.this, "你征服了这个关卡！", Toast.LENGTH_SHORT).show();
+                else if(id>10){
+                    switch (dif){
+                        case 0:
+                            updateData(20);Toast.makeText(page3.this, "已获得敏Ⅰ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(21);Toast.makeText(page3.this, "已获得敏Ⅱ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else Toast.makeText(page3.this, "硬币反面朝上，没有奖励", Toast.LENGTH_SHORT).show();
+                Stage2_SurfaceView.rec=0;//重置
+                break;
+            }
+            case 3:{
+                id=Stage3_SurfaceView.rec;//调用surfaceview的参数
+                if(id==0) break;
+                if(dif==2)  Toast.makeText(page3.this, "你征服了这个关卡！", Toast.LENGTH_SHORT).show();
+                else if(id>10){
+                    switch (dif){
+                        case 0:
+                            updateData(30);Toast.makeText(page3.this, "已获得体Ⅰ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(31);Toast.makeText(page3.this, "已获得体Ⅱ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else Toast.makeText(page3.this, "硬币反面朝上，没有奖励", Toast.LENGTH_SHORT).show();
+                Stage3_SurfaceView.rec=0;//重置
+                break;
+            }
+            case 4:{
+                id=Stage4_SurfaceView.rec;//调用surfaceview的参数
+                if(id==0) break;
+                if(dif==2)  Toast.makeText(page3.this, "你征服了这个关卡！", Toast.LENGTH_SHORT).show();
+                else if(id>10){
+                    switch (dif){
+                        case 0:
+                            updateData(40);Toast.makeText(page3.this, "已获得全Ⅰ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(41);Toast.makeText(page3.this, "已获得全Ⅱ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else Toast.makeText(page3.this, "硬币反面朝上，没有奖励", Toast.LENGTH_SHORT).show();
+                Stage4_SurfaceView.rec=0;//重置
+                break;
+            }
+            case 5:{
+                id=Stage5_SurfaceView.rec;//调用surfaceview的参数
+                if(id==0) break;
+                if(dif==2)  Toast.makeText(page3.this, "你征服了这个关卡！", Toast.LENGTH_SHORT).show();
+                else if(id>15){
+                    switch (dif){
+                        case 0:
+                            updateData(50);Toast.makeText(page3.this, "已获得技Ⅰ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(52);Toast.makeText(page3.this, "已获得技Ⅲ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else if(id>10){
+                    switch (dif){
+                        case 0:
+                            updateData(51);Toast.makeText(page3.this, "已获得技Ⅱ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 1:
+                            updateData(53);Toast.makeText(page3.this, "已获得技Ⅳ(唯一)", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }
+                else Toast.makeText(page3.this, "硬币反面朝上，没有奖励", Toast.LENGTH_SHORT).show();
+                Stage5_SurfaceView.rec=0;//重置
+                //Stage5_SurfaceView.stop=0;//surfaceview的destory有延迟，这个语句后覆盖执行了一次，此处相当于无效了
+                break;
+            }
+            case 10:{
+                id=StageA2_SV.rec;//调用surfaceview的参数
+                if(id==0) break;
+                else Toast.makeText(page3.this, "WIN", Toast.LENGTH_SHORT).show();
+                StageA2_SV.rec=0;//重置
+                //Stage5_SurfaceView.stop=0;//surfaceview的destory有延迟，这个语句后覆盖执行了一次，此处相当于无效了
+                break;
+            }
+            default:break;
+        }
+        /*旧版掉落概率
+        switch(x){
+            case 1: {
+                id=Stage1_SurfaceView.rec;//调用surfaceview的参数
+                if(id==0) break;
                 if(id>10){
                     switch (dif){
                         case 2:
@@ -253,12 +381,12 @@ public class page3 extends AppCompatActivity {
                             else        {updateData(1);Toast.makeText(page3.this, "已获得A型源码", Toast.LENGTH_SHORT).show();}//40%
                             break;
                     }
-                    /*
-                    if(id==20) {updateData(14);Toast.makeText(page3.this, "已获得N型源码", Toast.LENGTH_SHORT).show();}
-                    else if(id>17) {updateData(9);Toast.makeText(page3.this, "已获得I型源码", Toast.LENGTH_SHORT).show();}
-                    else if(id>14) {updateData(5);Toast.makeText(page3.this, "已获得E型源码", Toast.LENGTH_SHORT).show();}
-                    else           {updateData(1);Toast.makeText(page3.this, "已获得A型源码", Toast.LENGTH_SHORT).show();}
-                     */
+
+                    //if(id==20) {updateData(14);Toast.makeText(page3.this, "已获得N型源码", Toast.LENGTH_SHORT).show();}
+                    //else if(id>17) {updateData(9);Toast.makeText(page3.this, "已获得I型源码", Toast.LENGTH_SHORT).show();}
+                    //else if(id>14) {updateData(5);Toast.makeText(page3.this, "已获得E型源码", Toast.LENGTH_SHORT).show();}
+                    //else           {updateData(1);Toast.makeText(page3.this, "已获得A型源码", Toast.LENGTH_SHORT).show();}
+
                 }
                 else Toast.makeText(page3.this, "谢谢参与", Toast.LENGTH_SHORT).show();
                 Stage1_SurfaceView.rec=0;//重置
@@ -369,6 +497,7 @@ public class page3 extends AppCompatActivity {
             }
             default:break;
         }
+        * */
         Looper.loop();
     }
 

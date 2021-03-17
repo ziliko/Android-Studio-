@@ -26,6 +26,9 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
         bbt_kind2L = BitmapFactory.decodeResource(getResources(), R.drawable.boss_bullet2large);
         bbt_kind3 = BitmapFactory.decodeResource(getResources(), R.drawable.boss_bullet3);
 
+        boss_skill00=BitmapFactory.decodeResource(getResources(), R.drawable.bossskill30);
+        boss_skill01=BitmapFactory.decodeResource(getResources(), R.drawable.bossskill31);
+
         this.initValue();//TODO 各关卡独有的初始化数值
         this.initSounds();//TODO 各关卡独有的背景音乐
         this.initTimerTask2();//TODO 各关卡独有的BOSS子弹风格
@@ -36,10 +39,10 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
         section=2;////各关的阶段数
         mylife=hp;//各关的自机初始血量 9999+ 为上帝模式 hp
         mypower=2;//各关的自机初始蓝量
-        bosslife_all=3000*(1+dif*2);//各关的BOSS初始血量
-        bosslife=bosslife_all;
-        bossX_control=1+(int)(Math.random()*2);////各关的BOSS初始移动方式   1 或2 的开局移动方式
-        boss_speed=3;//各关的BOSS初始速度
+        bosslife_all=2500*(1+dif*dif);//各关的BOSS初始血量
+        BOSS.bosslife=bosslife_all;
+        BOSS.control=1+(int)(Math.random()*2);////各关的BOSS初始移动方式   1 或2 的开局移动方式
+        BOSS.speed=3;//各关的BOSS初始速度
     }
 
     //背景音乐定义
@@ -58,23 +61,18 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                     if(!isSkill||skill!=3){//受技能3影响：时停
                         if(!isSkill||skill!=4) {//受技能4影响：定身
                             //boss移动
-                            //bossX_control=-1;
-                            if(bossX_control==1){
-                                bossX-=boss_speed;
-                                if(bossX<=0) {bossX=0;bossX_control=2;}
-                            }
-                            if(bossX_control==2){
-                                bossX+=boss_speed;
-                                if(bossX>=screenWidth-bossWidth) {bossX=screenWidth-bossWidth;bossX_control=1;}
-                            }
+                            //BOSS.control=-1;
+                            BOSS.move();
                             //N H 第二三阶段BOSS居中不动
                         }
 
-                        if(myY<bossY+bossHeight) {//特殊情况碰撞检测函数3-玩家撞到BOSS直接判断死亡?
-                            int dx=(myX+myWidth/2)-(bossX+bossWidth/2);
-                            int dy=(myY+myHeight/2)-(bossY+bossHeight/2);
-                            if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))< bossWidth/2) {soundId1=PigSoundPlayer.play_half("die",0);mylife=0;}
+                        /*特殊情况碰撞检测函数3-玩家撞到BOSS直接判断死亡?
+                        if(myY<BOSS.bossY+BOSS.bossHeight) {
+                            int dx=(myX+myWidth/2)-(BOSS.bossX+BOSS.bossWidth/2);
+                            int dy=(myY+myHeight/2)-(BOSS.bossY+BOSS.bossHeight/2);
+                            if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))< BOSS.bossWidth/2) {soundId1=PigSoundPlayer.play_half("die",0);mylife=0;}
                         }
+                        */
 
                         for(int i=0;i<bbtList.size();i++)
                         {
@@ -100,7 +98,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                             if(isSkill) myarea=myWidth/2;//无敌撞弹当然要大范围啦
                             else myarea=(myWidth/4)*dex_area/100;
 
-                            if(mylife>0&&mylife<9999){                 //碰撞 9999为上帝模式
+                            if(mylife>=0&&mylife<9999){                 //碰撞 9999为上帝模式
                                 if (bbullet.crash(myX,myY,myWidth,myarea)) {
                                     if(!isSkill&&!isRebirth) {
                                         mylife-=1;
@@ -110,7 +108,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                                         bbtList.trimToSize();//重置大小
                                         mybtList.clear();
                                         mybtList.trimToSize();
-                                        if(mylife>0) {
+                                        if(mylife>=0) {
                                             isRebirth=true;//重生入场
                                             myX=screenWidth/2-myWidth/2;
                                             myY=screenHeight;
@@ -125,7 +123,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                                     if(garze%10==0&&mypower<8) mypower++;
                                 }
                             }
-                            if(mylife<=0) {isEnd=true;bossdelay=0;}
+                            if(mylife<0) {isEnd=true;bossdelay=0;}
 
                             if(bbtList.size()>0&&bbullet.end()) {                         //清理(不能并入碰撞，因为导致end原因有2种)
                                 bbtList.remove(i);
@@ -143,20 +141,20 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                                 switch (dif){
                                     case 0://EASY
                                         if (bossdelay>=900) {
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind2));
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind2));
                                             bossdelay=0;
                                         }break;
                                     case 1://NORMAL
                                         if (bossdelay>=900) { //单发弹(此处不改成%有奇效)
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,5,bbt_kind2));
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind2));
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,5,bbt_kind2));
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind2));
                                             bossdelay=0;
                                         }break;
                                     case 2://HARD
                                         if (bossdelay>=600) { //敌机子弹频度改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-bbt_kind2.getWidth()*2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+bbt_kind2.getWidth()*2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-bbt_kind2.getWidth()*2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+bbt_kind2.getWidth()*2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2,5));//自由落体运动
                                             bossdelay=0;
                                         }break;
                                     default:break;//0
@@ -167,12 +165,12 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                                 switch (dif){
                                     case 0://EASY
                                         if (bossdelay>3600) { //敌机子弹频度改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//固定位置
-                                            bbtList.add(new bossbullet(screenWidth*k/100,bossY+bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//随机
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//固定位置
+                                            bbtList.add(new bossbullet(screenWidth*k/100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//随机
                                             bossdelay=0;
                                         }
                                         else if (bossdelay%900==0) {
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2, bossY+bossHeight, screenWidth, screenHeight, 10, bbt_kind2));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2, BOSS.bossY+BOSS.bossHeight, screenWidth, screenHeight, 10, bbt_kind2));//变子弹只需要改这里
                                         }break;
                                     case 1://NORMAL 4方向
                                         if (bossdelay<6000&&bossdelay>1500&&bossdelay%600==0) { //
@@ -203,38 +201,38 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                                 switch (dif){
                                     case 0://EASY
                                         if (bossdelay>=3600) { //敌机子弹频度改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
-                                            bbtList.add(new bossbullet(bossX-bossWidth*3/2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
-                                            bbtList.add(new bossbullet(bossX+bossWidth*5/2,bossY+bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
-                                            bbtList.add(new bossbullet(screenWidth*k/100,bossY+bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//随机
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
+                                            bbtList.add(new bossbullet(BOSS.bossX-BOSS.bossWidth*3/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth*5/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,0,bbt_kind2L,5));//自由落体运动
+                                            bbtList.add(new bossbullet(screenWidth*k/100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,5,bbt_kind2L));//随机
                                             bossdelay=0;
                                         }
-                                        else if (bossdelay%600==0) bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
+                                        else if (bossdelay%600==0) bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
                                         break;
                                     case 1://NORMAL 加入阴阳玉 吸附效果  因为较小可以用正常大小         x方式31 (基于雪花方式3)
                                         if (bossdelay>=6000) { //
                                             soundId6=PigSoundPlayer.play("bossskill3",0);
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight/2,screenWidth,screenHeight,screenHeight/300,boss_skill00,31));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight/2,screenWidth,screenHeight,screenHeight/300,boss_skill00,31));//变子弹只需要改这里
                                             bossdelay=0;
                                         }
                                         else if (bossdelay%3000==0) { //重力弹射弹
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100,4));    //随机方向重力 + 5次弹射
-                                            if(time<50||bosslife<bosslife_all/2)bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100+180,2));    //随机方向重力弹射 + 2次弹射
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100,4));    //随机方向重力 + 5次弹射
+                                            if(time<50||BOSS.bosslife<bosslife_all/2)bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100+180,2));    //随机方向重力弹射 + 2次弹射
 
                                         }
                                         break;
                                     case 2://HARD 加入阴阳鬼神玉  因为较大几乎全屏，所以要用Rect绘制   x方式32 (基于雪花方式3)
                                         if (bossdelay>=12000) { //敌机子弹频度改这里
                                             soundId6=PigSoundPlayer.play("bossskill3",0);
-                                            //bbtList.add(new bossbullet(bossX+bossWidth/2,-boss_skill01.getHeight(),screenWidth,screenHeight,screenHeight/500,boss_skill03,31,90,"rectangle"));//测试矩形：结果碰撞范围未旋转
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight/2,screenWidth,screenHeight,screenHeight/500,boss_skill01,31));//变子弹只需要改这里
+                                            //bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,-boss_skill01.getHeight(),screenWidth,screenHeight,screenHeight/500,boss_skill03,31,90,"rectangle"));//测试矩形：结果碰撞范围未旋转
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight/2,screenWidth,screenHeight,screenHeight/500,boss_skill01,31));//变子弹只需要改这里
                                             bossdelay=0;
                                         }
                                         else if (bossdelay==3000) { //重力弹射弹
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,30,3));    //3次弹射
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,150,3));    //3次弹射
-                                            if(time<66||bosslife<bosslife_all*2/3)  bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100,2));    //随机方向重力弹射 + 2次弹射
-                                            if(time<33||bosslife<bosslife_all/3)    bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100+180,1));    //随机方向重力弹射 + 2次弹射
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,30,3));    //3次弹射
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,150,3));    //3次弹射
+                                            if(time<66||BOSS.bosslife<bosslife_all*2/3)  bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100,2));    //随机方向重力弹射 + 2次弹射
+                                            if(time<33||BOSS.bosslife<bosslife_all/3)    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,me_skill,30,360*k/100+180,1));    //随机方向重力弹射 + 2次弹射
 
                                         }
                                         break;
@@ -263,7 +261,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                 //背景之上的时停怀表
                 if(skillflag==1&&skill==3) canvas.drawBitmap(skillPic, screenWidth/2-skillPic.getWidth()/2, 0, paint);
                 if(isEnd) {
-                    if(mylife<=0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
+                    if(mylife<0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
                     else if(isEnd2) canvas.drawBitmap(tr2, screenWidth / 2 - tr2.getWidth() / 2, screenHeight / 2 - tr2.getHeight() / 2, paint);
                     else canvas.drawBitmap(tr1, screenWidth / 2 - tr1.getWidth() / 2, screenHeight / 2 - tr1.getHeight() / 2, paint);
                     //在按键中加入开箱随机函数并修改数据库+返回
@@ -272,7 +270,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                     //先画我敌-子弹-其他物品
                     if(isSkill) canvas.drawBitmap(me_skill, myX, myY, paint);
                     else canvas.drawBitmap(me, myX, myY, paint);
-                    canvas.drawBitmap(boss, bossX,bossY, paint);
+                    canvas.drawBitmap(boss, BOSS.bossX,BOSS.bossY, paint);
 
                     for(int i=0;i<bbtList.size();i++)
                     {
@@ -287,7 +285,7 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
                     }
 
 
-                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*bosslife/bosslife_all-10, 30),paint);
+                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*BOSS.bosslife/bosslife_all-10, 30),paint);
                     for(int i=0;i<section;i++) canvas.drawBitmap(sections,10+sections.getWidth()*i,40,paint);
                     canvas.drawText(String.valueOf(time),screenWidth-100,100,paint);
                     canvas.drawLine(0, downline, screenWidth,downline, paint);//分界线
@@ -329,18 +327,18 @@ public class Stage3_SurfaceView extends Stage_Father{//父类只能一个,接口
         soundId4=PigSoundPlayer.play("section_change",0);
         //此关m用于旋转
         m=0;
-        bosslife=bosslife_all;
+        BOSS.bosslife=bosslife_all;
         //N H 第二阶段屏幕正中不动、第三阶段BOSS移至上居中不动
         if(dif>0){
             if(section==1){
-                bossX=screenWidth/2-bossWidth/2;
-                bossY=screenHeight/2-bossHeight/2;
-                bossX_control=0;
+                BOSS.bossX=screenWidth/2-BOSS.bossWidth/2;
+                BOSS.bossY=screenHeight/2-BOSS.bossHeight/2;
+                BOSS.control=0;
             }
             else if(section==0){
-                bossX=screenWidth/2-bossWidth/2;
-                bossY=50;
-                bossX_control=0;
+                BOSS.bossX=screenWidth/2-BOSS.bossWidth/2;
+                BOSS.bossY=50;
+                BOSS.control=0;
             }
         }
         if(section==0) time=99;

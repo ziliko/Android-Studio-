@@ -160,7 +160,7 @@ public class mybullet {
             int dx=(bossX+bossW/2)-(int)(x+w/2);
             int dy=(bossY+bossW/2)-(int)(y+h/2);
             if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))<= bossW/2) {
-                //if(Math.abs(centre_bossX-centre_x)<r && Math.abs(centre_bossY-centre_y)<r)
+                //if(Math.abs(centre_BOSS.bossX-centre_x)<r && Math.abs(centre_BOSS.bossY-centre_y)<r)
                 isBullet=false;//提前结束生命
                 return true;//调用敌机hp--的函数?
             }

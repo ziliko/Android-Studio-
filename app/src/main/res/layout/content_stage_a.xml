@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout1"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <!--注释内容
+    <com.example.once_a_day.Stage1_SurfaceView
+        android:id="@+id/Stage1View"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+ -->
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+        <com.example.once_a_day.StageA2_SV
+            android:id="@+id/innerView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+        </com.example.once_a_day.StageA2_SV>
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/button01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:text="Menu" />
+    <!--注释内容 -->
+    <!--注释内容
+    <Button
+        android:id="@+id/button01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="100dp"
+        android:text="暂停|继续" />
+    <Button
+        android:id="@+id/button02"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="100dp"
+        android:layout_above="@id/button01"
+        android:text="功能未定" />
+        -->
+</RelativeLayout>

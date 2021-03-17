@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,15 +25,16 @@ import java.util.TimerTask;
 import static android.content.Context.MODE_PRIVATE;
 
 public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback, Runnable{//父类只能一个,接口可以多个
-
+    private static final String TAG = "Stage_Father";
     //BOSS血量改动暂时无效，要在后面初始化里改
     int section;//一关分成3部分
     int bosslife_all;//
-    int bosslife;//
+    BOSS BOSS;
+    //int bosslife;//
     int mylife;//
     int mypower;//
     int stepSize;//方向盘控制时期，用于控制每按一次移动的距离，已废弃
-    int boss_speed;//boss移动速度
+    //int speed;//boss移动速度
 
     //受装备加成
     int player;  //自机角色 0 1 2 3
@@ -82,14 +84,14 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
     int screenHeight = 0;
     int myWidth = 0;
     int myHeight = 0;
-    int bossWidth = 0;
-    int bossHeight = 0;
+    //int BOSS.bossWidth = 0;
+    //int BOSS.bossHeight = 0;
     int downline = 0;//下界分界线Y轴坐标
     int downline_part = 0;//将线下面区域四等分
 
-    int bossX = -1;//控制boss -1用于仅一次的开场初始化部分
-    int bossY = -1;//
-    int bossX_control = 0;//控制BOSS移动模式 0静止 1左 2右 3随机闪现？(超出范围默认静止)
+    //int BOSS.bossX = -1;//控制boss -1用于仅一次的开场初始化部分
+    //int BOSS.bossY = -1;//
+    //int BOSS.control = 0;//控制BOSS移动模式 0静止 1左 2右 3随机闪现？(超出范围默认静止)
 
     int touchstartX = 0;//触屏控制起始位置
     int touchstartY = 0;//
@@ -129,7 +131,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
     int delay_clock;//游戏中用于倒计时-1；游戏后用于延迟1秒开箱
     int delay_rebirth;//掉残重生2秒延时
     int delay_garze;//擦弹间隔延时
-    int i,j,k,m;//i,j变量 k作为上层随机数 m作为下层局部随机数
+    int i,j,k,k2,k3,m;//i,j变量 k作为上层随机数 m作为下层局部随机数
     int time;//阶段倒计时
     int garze;//擦弹得点
 
@@ -276,8 +278,9 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         mylife=hp;//9999+ 为上帝模式 hp
         mypower=2;
         bosslife_all=2400*(1+dif*2);
-        bosslife=bosslife_all;
-        bossX_control=1+(int)(Math.random()*2);//1 或2 的开局移动方式
+        BOSS=new BOSS();
+        BOSS.bosslife=bosslife_all;
+        BOSS.control=1+(int)(Math.random()*2);//1 或2 的开局移动方式
 
         bggundong=0;//控制背景滚动
         rec=0;//返回数据
@@ -291,12 +294,12 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         screenHeight = 0;
         myWidth = 0;
         myHeight = 0;
-        bossWidth = 0;
-        bossHeight = 0;
+        BOSS.bossWidth = 0;
+        BOSS.bossHeight = 0;
         downline = 0;//下界分界线Y轴坐标
         downline_part = 0;//将线下面区域四等分
-        bossX = -1;//控制boss -1用于仅一次的开场初始化部分
-        bossY = -1;//
+        BOSS.bossX = -1;//控制boss -1用于仅一次的开场初始化部分
+        BOSS.bossY = -1;//
         touchstartX = 0;//触屏控制起始位置
         touchstartY = 0;//
         myX = 0;//控制玩家
@@ -348,13 +351,13 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                             mybullet mbullet=mybtList.get(i);
                             mbullet.Move();                             //移动
 
-                            if(bosslife>0){                             //碰撞
-                                if(mbullet.crash(bossX,bossY,bossWidth)){
+                            if(BOSS.bosslife>0){                             //碰撞
+                                if(mbullet.crash(BOSS.bossX,BOSS.bossY,BOSS.bossWidth)){
                                     if(isSkill&&skill==3) timestopkill+=str;
-                                    else bosslife-=str;
+                                    else BOSS.bosslife-=str;
                                 }
                             }
-                            if(bosslife<=0) {   //转阶段判断处1
+                            if(BOSS.bosslife<=0) {   //转阶段判断处1
                                 if(section>0) section_change();
                                 else if(!isEnd){           //游戏结束判定处
                                     soundId3 = PigSoundPlayer.play("win",0.3f,0.3f,1,0,1.0f);
@@ -387,9 +390,9 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                                     mybtList.add(new mybullet(myX + myWidth/2,myY,dex,mybt,270));
                                     mybtList.add(new mybullet(myX + myWidth,myY,dex,mybt,280));
                                     break;
-                                case 0://白毛  直线2排  概率切割
-                                    mybtList.add(new mybullet(myX,myY,dex,mybt));
-                                    mybtList.add(new mybullet(myX + myWidth,myY,dex,mybt));
+                                case 0://白毛  直线2排
+                                    mybtList.add(new mybullet(myX + myWidth/3,myY,dex,mybt));
+                                    mybtList.add(new mybullet(myX + myWidth*2/3,myY,dex,mybt));
                                     break;
                                 default:break;
                             }
@@ -419,9 +422,9 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                         else delay_clock++;// 独立延时数：游戏结束前用于1秒倒计时 50=1s
                         if (!isEnd && delay_clock >= 50) {
                             delay_clock = 0;
-                            time--;
-                            if (time <= 0) {//转阶段判断处2
-                                bosslife = 0;//没必要，且最后阶段无计时(或者99)
+                            if(time>0) time--;
+                            else {//转阶段判断处2
+                                //BOSS.bosslife=0;//没必要，且最后阶段无计时(或者99)
                                 if(section>0) section_change();
                             }
 
@@ -445,7 +448,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                 if(stop==0&&!mediaplayer.isPlaying()) mediaplayer.start();
                 //控制技能
                 if (stop == 0&&isSkill) {
-                    if(mylife>9999) {bosslife=0;isSkill = false;}//上帝模式开技能则秒杀
+                    if(mylife>9999) {BOSS.bosslife=0;isSkill = false;}//上帝模式开技能则秒杀
                     else{
                         delay_damage++;
                         //if(skillflag>1) {skillflag=0;curIndex++;}//curIndex++需要注意溢出
@@ -457,7 +460,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                                 else if(delay_damage>=30&&skillflag==0) {skillflag = 1;curIndex = 0;skillPic=pics.get(curIndex);}
                                 else if (skillflag == 1) {
                                     //拉刀光0-4 0-50
-                                    if(delay_damage==44) {curIndex = 4;/*if(进入范围)*/ bosslife-=str*5;}//伤害判定(仅一次)
+                                    if(delay_damage==44) {curIndex = 4;/*if(进入范围)*/ BOSS.bosslife-=str*5;}//伤害判定(仅一次)
                                     else if(delay_damage==39) curIndex = 3;//
                                     else if(delay_damage==35) curIndex = 2;//
                                     else if(delay_damage==32) curIndex = 1;//
@@ -471,7 +474,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                                     //拉刀光0-11 0-100
                                     if(delay_damage<96) curIndex=(delay_damage-50)/4;
                                     switch(delay_damage){//伤害判定(三次)
-                                        case 54:case 66:case 78:{/*if(进入范围)*/ soundId5=PigSoundPlayer.play_half("skill2",0);bosslife-=str*2;break;}
+                                        case 54:case 66:case 78:{/*if(进入范围)*/ soundId5=PigSoundPlayer.play_half("skill2",0);BOSS.bosslife-=str*2;break;}
                                         default:break;
                                     }
                                     skillPic=pics.get(curIndex);
@@ -483,7 +486,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                                 else if (skillflag == 1) {
                                     //拉刀光0-5 0-150
                                     //time stop!!!
-                                    if(delay_damage==149) {bosslife-=timestopkill;timestopkill=0;}//时停结算
+                                    if(delay_damage==149) {BOSS.bosslife-=timestopkill;timestopkill=0;}//时停结算
                                     else if(delay_damage>=140) curIndex = 0 ;//
                                     else if(delay_damage>=130) curIndex = 1;//
                                     else if(delay_damage>=120) curIndex = 2;//
@@ -504,7 +507,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                                     //拉刀光0-28 0-150
                                     if(60<delay_damage&&delay_damage<145) curIndex=(delay_damage-60)/3;
                                     switch(delay_damage){//伤害判定(七次)
-                                        case 69:case 81:case 93:case 105:case 117:case 129:case 141:{/*if(进入范围)*/ bosslife-=str*2;soundId5=PigSoundPlayer.play_half("skill4",0);break;}
+                                        case 69:case 81:case 93:case 105:case 117:case 129:case 141:{/*if(进入范围)*/ BOSS.bosslife-=str*2;soundId5=PigSoundPlayer.play_half("skill4",0);break;}
                                         default:break;
                                     }
                                     skillPic=pics.get(curIndex);
@@ -562,8 +565,10 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         screenHeight = getHeight();
         myWidth = me.getWidth();
         myHeight = me.getHeight();
-        bossWidth = boss.getWidth();
-        bossHeight = boss.getHeight();
+        BOSS.bossWidth = boss.getWidth();
+        BOSS.bossHeight = boss.getHeight();
+        BOSS.screenWidth = screenWidth;
+        BOSS.screenHeight = screenHeight;
         downline=screenHeight-pic1.getHeight();
         downline_part=(screenHeight-downline)/4;
         paint.setColor(Color.WHITE);
@@ -571,9 +576,9 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
 
         //敌我初始位置+方向键判定区域 备注：若定时器不延时则到执行这条函数时不等于0，0？
         //这部分只开场初始化一次，切屏不重置
-        if(bossX==-1&&bossY==-1) {
-            bossX=screenWidth/2-bossWidth/2;
-            bossY=50;
+        if(BOSS.bossX==-1&&BOSS.bossY==-1) {
+            BOSS.bossX=screenWidth/2-BOSS.bossWidth/2;
+            BOSS.bossY=50;
             myX=screenWidth/2-myWidth/2;
             myY=downline-myHeight;
         }
@@ -618,7 +623,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                 //背景之上的时停怀表
                 if(skillflag==1&&skill==3) canvas.drawBitmap(skillPic, screenWidth/2-skillPic.getWidth()/2, 0, paint);
                 if(isEnd) {
-                    if(mylife<=0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
+                    if(mylife<0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
                     else if(isEnd2) canvas.drawBitmap(tr2, screenWidth / 2 - tr2.getWidth() / 2, screenHeight / 2 - tr2.getHeight() / 2, paint);
                     else canvas.drawBitmap(tr1, screenWidth / 2 - tr1.getWidth() / 2, screenHeight / 2 - tr1.getHeight() / 2, paint);
                     //在按键中加入开箱随机函数并修改数据库+返回
@@ -627,7 +632,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                     //先画我敌-子弹-其他物品
                     if(isSkill) canvas.drawBitmap(me_skill, myX, myY, paint);
                     else canvas.drawBitmap(me, myX, myY, paint);
-                    canvas.drawBitmap(boss, bossX,bossY, paint);
+                    canvas.drawBitmap(boss, BOSS.bossX,BOSS.bossY, paint);
 
                     for(int i=0;i<bbtList.size();i++)
                     {
@@ -641,7 +646,7 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
                     }
 
 
-                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*bosslife/bosslife_all-10, 30),paint);
+                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*BOSS.bosslife/bosslife_all-10, 30),paint);
                     for(int i=0;i<section;i++) canvas.drawBitmap(sections,10+sections.getWidth()*i,40,paint);
                     canvas.drawText(String.valueOf(time),screenWidth-100,100,paint);
                     canvas.drawLine(0, downline, screenWidth,downline, paint);//分界线
@@ -699,9 +704,9 @@ public class Stage_Father extends SurfaceView implements SurfaceHolder.Callback,
         int touchY = (int)event.getY();
         //System.out.println(touchX + ", " + touchY);
         if(isEnd) {
-            if(mylife>0&&delay_clock>=50){//延时1秒防止秒开箱
+            if(mylife>=0&&delay_clock>=50){//延时1秒防止秒开箱
                 isEnd2= true;
-                if(mylife>=9999) rec=0;//上帝模式无奖励
+                if(mylife>100) rec=0;//上帝模式9999命无奖励
                 else rec=rec_t%20+1;//开箱并随机抽奖+修改数据库 加一用于区别退出和无奖
             }
         }

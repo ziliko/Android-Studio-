@@ -92,12 +92,13 @@
             android:layout_weight="30"
             android:background="#4DFFFFFF"
             android:orientation="horizontal">
+
             <TextView
                 android:id="@+id/textView03"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="玩家:"
+                android:text="人物A"
                 android:textColor="#D003F4"
                 android:textSize="20sp" />
             <Spinner
@@ -105,16 +106,31 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
+
             <TextView
                 android:id="@+id/textView04"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="难度:"
+                android:text="难度E"
                 android:textColor="#D003F4"
                 android:textSize="20sp" />
             <Spinner
                 android:id="@+id/spinner02"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/textView05"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="技能0"
+                android:textColor="#D003F4"
+                android:textSize="20sp" />
+            <Spinner
+                android:id="@+id/spinner03"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1" />
@@ -134,23 +150,24 @@
                     android:id="@+id/textView11"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:text="力量A E I N"
+                    android:text="力"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="stage1"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/button01" />
+
                 <TextView
                     android:id="@+id/textView12"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:text="40 10 0  0 "
+                    android:text="50 Ⅰ"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
             </TableRow>
 
             <TableRow
@@ -162,15 +179,16 @@
                     android:id="@+id/textView21"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="灵巧B F J O"
+                    android:text="敏"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="stage2"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/button02" />
+
                 <TextView
                     android:id="@+id/textView22"
                     android:layout_width="wrap_content"
@@ -178,34 +196,36 @@
                     android:gravity="right"
                     android:text="(上同)"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
+
                 <TextView
                     android:id="@+id/textView31"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="体力C G K P"
+                    android:text="体"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="stage3"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/button03" />
+
                 <TextView
                     android:id="@+id/textView32"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="(上同)"
                     android:gravity="right"
+                    android:text="(上同)"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
             </TableRow>
 
             <TableRow
@@ -217,7 +237,7 @@
                     android:id="@+id/textView41"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="技能D H L Q"
+                    android:text="全"
                     android:textColor="#75D6FD"
                     android:textSize="20sp" />
                 <Button
@@ -226,6 +246,7 @@
                     android:text="stage4"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/button04" />
+
                 <TextView
                     android:id="@+id/textView42"
                     android:layout_width="wrap_content"
@@ -233,18 +254,19 @@
                     android:gravity="right"
                     android:text="(上同)"
                     android:textColor="#75D6FD"
-                    android:textSize="20sp" />
+                    android:textSize="24sp" />
             </TableRow>
 
             <TableRow
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1">
+
                 <TextView
                     android:id="@+id/textView51"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="全能M R "
+                    android:text="技"
                     android:textColor="#75D6FD"
                     android:textSize="24sp" />
                 <Button
@@ -253,12 +275,13 @@
                     android:text="stage5"
                     android:layout_gravity="center_horizontal"
                     android:id="@+id/button05" />
+
                 <TextView
                     android:id="@+id/textView52"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:text="10  0"
+                    android:text="50% Ⅰ Ⅱ"
                     android:textColor="#75D6FD"
                     android:textSize="24sp" />
             </TableRow>
@@ -298,12 +321,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="修改装备" />
+
                 <Button
+                    android:id="@+id/button064"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="结束游戏"
                     android:layout_weight="1"
-                    android:id="@+id/button064" />
+                    android:text="真·游戏" />
             </TableRow>
 
             <TableRow
@@ -316,24 +340,27 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="查看公告" />
+
                 <Button
                     android:id="@+id/button072"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="查看属性" />
+                    android:text="查看状态" />
+
                 <Button
                     android:id="@+id/button073"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="查看装备" />
+                    android:text="查看物品" />
+
                 <Button
                     android:id="@+id/button074"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="查看背包" />
+                    android:text="结束游戏" />
             </TableRow>
         </TableLayout>
 

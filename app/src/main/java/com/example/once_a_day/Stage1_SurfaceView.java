@@ -45,10 +45,10 @@ public class Stage1_SurfaceView extends Stage_Father{
         section=2;////各关的阶段数
         mylife=hp;//各关的自机初始血量 9999+ 为上帝模式 hp
         mypower=2;//各关的自机初始蓝量
-        bosslife_all=2400*(1+dif*2);//各关的BOSS初始血量
-        bosslife=bosslife_all;
-        bossX_control=1+(int)(Math.random()*2);////各关的BOSS初始移动方式   1 或2 的开局移动方式
-        boss_speed=3;//各关的BOSS初始速度
+        bosslife_all=2000*(1+dif*dif);//各关的BOSS初始血量
+        BOSS.bosslife=bosslife_all;
+        BOSS.control=1+(int)(Math.random()*2);////各关的BOSS初始移动方式   1 或2 的开局移动方式
+        BOSS.speed=3;//各关的BOSS初始速度
     }
 
     //背景音乐定义 TODO 各关卡不同
@@ -67,22 +67,17 @@ public class Stage1_SurfaceView extends Stage_Father{
                     if(!isSkill||skill!=3){//受技能3影响：时停
                         if(!isSkill||skill!=4) {//受技能4影响：定身
                             //boss移动
-                            //bossX_control=-1;
-                            if(bossX_control==1){
-                                bossX-=boss_speed;
-                                if(bossX<=0) {bossX=0;bossX_control=2;}
-                            }
-                            if(bossX_control==2){
-                                bossX+=boss_speed;
-                                if(bossX>=screenWidth-bossWidth) {bossX=screenWidth-bossWidth;bossX_control=1;}
-                            }
+                            //BOSS.control=-1;
+                            BOSS.move();
                         }
 
-                        if(myY<bossY+bossHeight) {//特殊情况碰撞检测函数3-玩家撞到BOSS直接判断死亡?
-                            int dx=(myX+myWidth/2)-(bossX+bossWidth/2);
-                            int dy=(myY+myHeight/2)-(bossY+bossHeight/2);
-                            if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))< bossWidth/2) {soundId1=PigSoundPlayer.play_half("die",0);mylife=0;}
+                        /*特殊情况碰撞检测函数3-玩家撞到BOSS直接判断死亡?
+                        if(myY<BOSS.bossY+BOSS.bossHeight) {
+                            int dx=(myX+myWidth/2)-(BOSS.bossX+BOSS.bossWidth/2);
+                            int dy=(myY+myHeight/2)-(BOSS.bossY+BOSS.bossHeight/2);
+                            if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))< BOSS.bossWidth/2) {soundId1=PigSoundPlayer.play_half("die",0);mylife=0;}
                         }
+                        */
 
                         for(int i=0;i<bbtList.size();i++)
                         {
@@ -93,7 +88,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                             if(isSkill) myarea=myWidth/2;//无敌撞弹当然要大范围啦
                             else myarea=(myWidth/4)*dex_area/100;
 
-                            if(mylife>0&&mylife<9999){                 //碰撞 9999为上帝模式
+                            if(mylife>=0&&mylife<9999){                 //碰撞 9999为上帝模式
                                 if (bbullet.crash(myX,myY,myWidth,myarea)) {
                                     if(!isSkill&&!isRebirth) {
                                         mylife-=1;
@@ -104,7 +99,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                                         bbtList.trimToSize();//重置大小
                                         mybtList.clear();
                                         mybtList.trimToSize();
-                                        if(mylife>0) {
+                                        if(mylife>=0) {
                                             isRebirth=true;//重生入场
                                             myX=screenWidth/2-myWidth/2;
                                             myY=screenHeight;
@@ -119,7 +114,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                                     if(garze%10==0&&mypower<8) mypower++;
                                 }
                             }
-                            if(mylife<=0) {isEnd=true;bossdelay=0;}
+                            if(mylife<0) {isEnd=true;bossdelay=0;}
 
                             if(bbtList.size()>0&&bbullet.end()) {                         //清理(不能并入碰撞，因为导致end原因有2种)
                                 bbtList.remove(i);
@@ -149,26 +144,26 @@ public class Stage1_SurfaceView extends Stage_Father{
                             case 2://第一阶段
                                 //bosslife=20;//测试用例
                                 if (bossdelay>=1200) { //敌机子弹频度改这里
-                                    //i=bossWidth/2;
-                                    //j=bossHeight;//减少运算量?
+                                    //i=BOSS.bossWidth/2;
+                                    //j=BOSS.bossHeight;//减少运算量?
                                     /*正常弹！上方安全*/
-                                    //bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
-                                    bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
-                                    bbtList.add(new bossbullet(bossX+bossWidth/2+50,bossY+bossHeight,screenWidth,screenHeight,9,bbt_kind2));//变子弹只需要改这里
-                                    bbtList.add(new bossbullet(bossX+bossWidth/2-50,bossY+bossHeight,screenWidth,screenHeight,9,bbt_kind2));//变子弹只需要改这里
-                                    bbtList.add(new bossbullet(bossX+bossWidth/2+100,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
-                                    bbtList.add(new bossbullet(bossX+bossWidth/2-100,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
+                                    //bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
+                                    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind2));//变子弹只需要改这里
+                                    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,9,bbt_kind2));//变子弹只需要改这里
+                                    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,9,bbt_kind2));//变子弹只需要改这里
+                                    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
+                                    bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
                                     if(dif>1){//追加
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2-200,bossY+bossHeight,screenWidth,screenHeight,6,bbt_kind2));//左+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2+200,bossY+bossHeight,screenWidth,screenHeight,6,bbt_kind2));//右+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,bbt_kind2));//上+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,2,bbt_kind2));//上+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-200,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,bbt_kind2));//左+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+200,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,bbt_kind2));//右+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,bbt_kind2));//上+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,2,bbt_kind2));//上+
                                     }
                                     if(dif>0){//追加
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2-150,bossY+bossHeight,screenWidth,screenHeight,7,bbt_kind2));//左+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2+150,bossY+bossHeight,screenWidth,screenHeight,7,bbt_kind2));//右+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//上+
-                                        bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,4,bbt_kind2));//上+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-150,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,7,bbt_kind2));//左+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+150,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,7,bbt_kind2));//右+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//上+
+                                        bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,4,bbt_kind2));//上+
                                     }
                                     bossdelay=0;
                                 }break;
@@ -178,45 +173,45 @@ public class Stage1_SurfaceView extends Stage_Father{
                                     case 0://难度EASY
                                         if (bossdelay>=1200) { //敌机子弹频度改这里
                                             /*菊爆！但是躲下方反而安全？*/
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,screenHeight,screenWidth,screenHeight,10,bbt_kind2,1));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+50,screenHeight,screenWidth,screenHeight,9,bbt_kind2,1));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-50,screenHeight,screenWidth,screenHeight,9,bbt_kind2,1));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,screenHeight,screenWidth,screenHeight,10,bbt_kind2,1));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,screenHeight,screenWidth,screenHeight,9,bbt_kind2,1));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,screenHeight,screenWidth,screenHeight,9,bbt_kind2,1));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//变子弹只需要改这里
                                             bossdelay=0;
                                         }break;
                                     case 1://难度Normal 交替正反弹（k）
                                         if (bossdelay>=1200) { //敌机子弹频度改这里
                                             if(k==0) {j=screenHeight;k=1;}//反弹
-                                            else  {j=bossY+bossHeight;k=0;}//正弹
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,10,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+150,j,screenWidth,screenHeight,7,bbt_kind2,k));//右+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-150,j,screenWidth,screenHeight,7,bbt_kind2,k));//左+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,8,bbt_kind2,k));//上+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,4,bbt_kind2,k));//上+
+                                            else  {j=BOSS.bossY+BOSS.bossHeight;k=0;}//正弹
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,10,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+150,j,screenWidth,screenHeight,7,bbt_kind2,k));//右+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-150,j,screenWidth,screenHeight,7,bbt_kind2,k));//左+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,8,bbt_kind2,k));//上+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,4,bbt_kind2,k));//上+
                                             bossdelay=0;
                                         }break;
                                     case 2://难度HARD
                                         if (bossdelay>=1200) { //敌机子弹频度改这里
                                             if(k==0) {j=screenHeight;k=1;}//反弹
-                                            else     {j=bossY+bossHeight;k=0;}//正弹
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,10,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+150,j,screenWidth,screenHeight,7,bbt_kind2,k));//右+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-150,j,screenWidth,screenHeight,7,bbt_kind2,k));//左+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+200,j,screenWidth,screenHeight,6,bbt_kind2,k));//右+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-200,j,screenWidth,screenHeight,6,bbt_kind2,k));//左+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,8,bbt_kind2,k));//上+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,4,bbt_kind2,k));//上+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,6,bbt_kind2,k));//上+
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,j,screenWidth,screenHeight,2,bbt_kind2,k));//上+
+                                            else     {j=BOSS.bossY+BOSS.bossHeight;k=0;}//正弹
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,10,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,j,screenWidth,screenHeight,9,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,j,screenWidth,screenHeight,8,bbt_kind2,k));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+150,j,screenWidth,screenHeight,7,bbt_kind2,k));//右+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-150,j,screenWidth,screenHeight,7,bbt_kind2,k));//左+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+200,j,screenWidth,screenHeight,6,bbt_kind2,k));//右+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-200,j,screenWidth,screenHeight,6,bbt_kind2,k));//左+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,8,bbt_kind2,k));//上+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,4,bbt_kind2,k));//上+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,6,bbt_kind2,k));//上+
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,j,screenWidth,screenHeight,2,bbt_kind2,k));//上+
                                             bossdelay=0;
                                         }break;
                                     default:break;//0
@@ -227,70 +222,70 @@ public class Stage1_SurfaceView extends Stage_Father{
                                     case 0://EASY  上下夹击
                                         if (bossdelay>=1200) { //敌机子弹频度改这里
                                             /*高难度构思 菊爆！但是躲下方反而安全？*/
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+50,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+100,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-50,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-100,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+50,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2+100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-50,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
-                                            bbtList.add(new bossbullet(bossX+bossWidth/2-100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//变子弹只需要改这里
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+50,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-50,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
+                                            bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-100,screenHeight,screenWidth,screenHeight,8,bbt_kind2,1));//
                                             bossdelay=0;
                                         }break;
                                     case 1://NORMAL  上下夹击 + 十字 (+ 炮?)
                                         if (bossdelay%1200==0) { //敌机子弹频度改这里
                                             //一横排子弹
                                             for(k=-time;k<screenWidth+100;k+=bbt_kind2.getWidth()*2) {
-                                                bbtList.add(new bossbullet(k,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));
+                                                bbtList.add(new bossbullet(k,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));
                                                 bbtList.add(new bossbullet(k,screenHeight,screenWidth,screenHeight,8,bbt_kind2));
                                             }
                                         }
                                         if (bossdelay%3600==0) { //敌机子弹频度改这里
                                             //一竖排子弹
                                             for(k=3;k<20;k+=2) {
-                                                bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,k,bbt_kind2));
+                                                bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,k,bbt_kind2));
                                             }
                                         }
                                         if (bossdelay>7200) { //敌机子弹频度改这里
                                             //仿魔炮
-                                            if (bossX_control<3) {bossX_control=10-bossX_control;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
-                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,3,bbt_kind1,12,n));    //方向扩散弹
-                                            if(bossdelay>9200) {bossdelay=0;bossX_control=10-bossX_control;}
+                                            if (BOSS.control<3) {BOSS.control=10-BOSS.control;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
+                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,3,bbt_kind1,12,n));    //方向扩散弹
+                                            if(bossdelay>9200) {bossdelay=0;BOSS.control=10-BOSS.control;}
                                         }
                                         break;
                                     case 2://HARD  九宫格夹击切割+魔炮 20秒一轮
                                         if (bossdelay%500==0) { //敌机子弹频度改这里
                                             //一横排子弹
                                             for(k=-time%10*20;k<screenWidth+100;k+=bbt_kind2.getWidth()*2) {
-                                                bbtList.add(new bossbullet(k,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind2));
+                                                bbtList.add(new bossbullet(k,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind2));
                                                 bbtList.add(new bossbullet(k,screenHeight,screenWidth,screenHeight,8,bbt_kind2));
                                             }
                                         }
                                         if (bossdelay%5000==0) { //敌机子弹频度改这里
                                             //三竖排子弹
                                             for(k=1;k<20;k+=2) {
-                                                bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,k,bbt_kind2));
-                                                bbtList.add(new bossbullet(bossX+bossWidth/2-screenWidth/3,bossY+bossHeight,screenWidth,screenHeight,k,bbt_kind2));
-                                                bbtList.add(new bossbullet(bossX+bossWidth/2+screenWidth/3,bossY+bossHeight,screenWidth,screenHeight,k,bbt_kind2));
+                                                bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,k,bbt_kind2));
+                                                bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2-screenWidth/3,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,k,bbt_kind2));
+                                                bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2+screenWidth/3,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,k,bbt_kind2));
                                             }
                                         }
                                         if(time>50&&bossdelay>13000) { //敌机子弹频度改这里 50秒3波
                                             //仿魔炮
-                                            if (boss_speed==3) {boss_speed=1;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
-                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,6,bbt_kind1,12,n));    //方向扩散弹
-                                            if(bossdelay>16000) {bossdelay=0;boss_speed=3;}//注！这个初始化不一定实现，因为是最好阶段所以问题不大，后续拓展要注意修改
+                                            if (BOSS.speed==3) {BOSS.speed=1;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
+                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,6,bbt_kind1,12,n));    //方向扩散弹
+                                            if(bossdelay>16000) {bossdelay=0;BOSS.speed=3;}//注！这个初始化不一定实现，因为是最好阶段所以问题不大，后续拓展要注意修改
                                         }
                                         else if(time>20&&bossdelay>8000) {//30秒3波
-                                            if (boss_speed==3) {boss_speed=1;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
-                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,8,bbt_kind1,12,n));    //方向扩散弹
-                                            if(bossdelay>9900) {bossdelay=0;boss_speed=3;}
+                                            if (BOSS.speed==3) {BOSS.speed=1;soundId6=PigSoundPlayer.play("bossskill1",0);}//暂停移动+音效(仅一次)
+                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,8,bbt_kind1,12,n));    //方向扩散弹
+                                            if(bossdelay>9900) {bossdelay=0;BOSS.speed=3;}
                                         }
                                         else if(time<=20&&bossdelay>=1500) {//狂暴吧！
-                                            if(boss_speed!=3) boss_speed=3;
+                                            if(BOSS.speed!=3) BOSS.speed=3;
                                             if(bossdelay==1500) soundId6=PigSoundPlayer.play("bossskill1",0);//音效(仅一次)
-                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(bossX+bossWidth/2,bossY+bossHeight,screenWidth,screenHeight,10,bbt_kind1,12,n));    //方向扩散弹
+                                            if(bossdelay%100==0) for(int n=0;n<181;n+=10)  bbtList.add(new bossbullet(BOSS.bossX+BOSS.bossWidth/2,BOSS.bossY+BOSS.bossHeight,screenWidth,screenHeight,10,bbt_kind1,12,n));    //方向扩散弹
                                             if(bossdelay>4000) bossdelay=0;
                                         }
                                         break;
@@ -321,7 +316,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                 //背景之上的时停怀表
                 if(skillflag==1&&skill==3) canvas.drawBitmap(skillPic, screenWidth/2-skillPic.getWidth()/2, 0, paint);
                 if(isEnd) {
-                    if(mylife<=0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
+                    if(mylife<0)canvas.drawBitmap(gameover, screenWidth / 2 - gameover.getWidth() / 2, screenHeight / 2 - gameover.getHeight() / 2, paint);
                     else if(isEnd2) canvas.drawBitmap(tr2, screenWidth / 2 - tr2.getWidth() / 2, screenHeight / 2 - tr2.getHeight() / 2, paint);
                     else canvas.drawBitmap(tr1, screenWidth / 2 - tr1.getWidth() / 2, screenHeight / 2 - tr1.getHeight() / 2, paint);
                     //在按键中加入开箱随机函数并修改数据库+返回
@@ -330,7 +325,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                     //先画我+敌，我+敌子弹
                     if(isSkill) canvas.drawBitmap(me_skill, myX, myY, paint);
                     else canvas.drawBitmap(me, myX, myY, paint);
-                    canvas.drawBitmap(boss, bossX,bossY, paint);
+                    canvas.drawBitmap(boss, BOSS.bossX,BOSS.bossY, paint);
 
                     for(int i=0;i<bbtList.size();i++)
                     {
@@ -343,7 +338,7 @@ public class Stage1_SurfaceView extends Stage_Father{
                         canvas.drawBitmap(mbullet.getBitmap(), mbullet.getX(), mbullet.getY(), paint);
                     }
                     //再画其他物品
-                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*bosslife/bosslife_all-10, 30),paint);
+                    canvas.drawBitmap(bosshp,null,new Rect(10, 10, screenWidth*BOSS.bosslife/bosslife_all-10, 30),paint);
                     for(int i=0;i<section;i++) canvas.drawBitmap(sections,10+sections.getWidth()*i,40,paint);
                     canvas.drawText(String.valueOf(time),screenWidth-100,100,paint);
                     canvas.drawLine(0, downline, screenWidth,downline, paint);//分界线
@@ -382,12 +377,12 @@ public class Stage1_SurfaceView extends Stage_Father{
         bossdelay=0;
         section--;
         soundId4=PigSoundPlayer.play("section_change",0);
-        bosslife=bosslife_all;
+        BOSS.bosslife=bosslife_all;
         if(section==0){
             time=99;
             //已经废弃，因为其他地方有调用i 频繁置为0了
-            //i=bossWidth/2;//因为关卡1第二阶段有局部随机改动，因此第三阶段初始化一次
-            //j=bossHeight;
+            //i=BOSS.bossWidth/2;//因为关卡1第二阶段有局部随机改动，因此第三阶段初始化一次
+            //j=BOSS.bossHeight;
         }
         else time=45+15*dif;
         //清空屏幕上所有子弹

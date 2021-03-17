@@ -26,6 +26,8 @@ public class bossbullet {
     double speed_x;//圆形扩散运动 =speed*Math.cos(Math.PI/2)); PI=180°对应的弧度3.14?  输入度数angle 则PI=PI*angle/180  由于屏幕以下为正 所以正常向下=90°
     double speed_y;//圆形扩散运动 =speed*Math.sin(Math.PI/2));
     int rotation;//对部分子弹有旋转效果，有个自带初始随机角度
+    int turn;//对于部分轨迹旋转，设定顺逆时针方向，0顺，-1逆
+    int turn_level;//对于部分指定(方式123)旋转距离的子弹，通过level改变其
     double rand;
     int rand2;
     int move_way;//移动方式：0 正常下落 1 X轴追踪
@@ -73,21 +75,25 @@ public class bossbullet {
     public bossbullet(int x, int y, int screenW, int screenH, double speed, Bitmap bitmap,int way,int angle) {
         basic_Init(x,y,screenW,screenH,speed,bitmap);
         move_way=way;
-        this.angle=angle;//角度（前进方向）
+        this.angle=angle;//角度（前进方向）         TODO 因为这句所以不能直接引用构造函数2
         if(way==1) this.angle+=180;
-        if(way==6||way==7) {center_x=x;center_y=y-w/2;this.y=y-w/2;}//标准轨迹圆心坐标
         speed_x=this.speed*Math.cos(Math.PI*angle/180);
         speed_y=this.speed*Math.sin(Math.PI*angle/180);
         if(way==3||way==4||way==53||way==54) rotation=(int)(rand*300);//生成随机初始角度(旋转)
+        //if(way==6||way==7||way==123) {center_x=x;center_y=y-w/2;this.y=y-w/2;}//标准轨迹圆心坐标
+        if(way==6||way==7||way==123) {center_x=x-w/2;center_y=y-h/2;this.y=y-h/2;}//标准轨迹圆心坐标
     }
-    //初始化构造函数4  加入方式和角度和弹射次数 （值小于等于10时）
-    /*初始化构造函数  针对四方形扩散弹幕，加入方式和 方向角度和 计算速度大小的角度  参数相同合并，此处角度加360区分(值大于10时)*/
+    //初始化构造函数4  加入方式和角度和最后一个参数：
+    // （值小于等于0时）旋转弹幕顺逆时针方向 0顺 -1逆
+    // （值小于等于10时）弹射次数
+    // （值大于10时）针对四方形扩散弹幕，加入方式和 方向角度和 计算速度大小的角度  参数相同合并，此处角度加360区分(值大于10时)
     public bossbullet(int x, int y, int screenW, int screenH, double speed, Bitmap bitmap,int way,int angle,int jump_time) {
         basic_Init(x,y,screenW,screenH,speed,bitmap);
         move_way=way;
         this.angle=angle;//角度（前进方向）
         if(way==1) this.angle+=180;
-        if(jump_time<=10) this.jump_time=jump_time;
+        if(jump_time==-1) this.turn=-1;
+        else if(jump_time<=10) this.jump_time=jump_time;
         else{
             jump_time=jump_time%90;
             if(jump_time>45) jump_time=90-jump_time;
@@ -96,8 +102,10 @@ public class bossbullet {
         speed_x=this.speed*Math.cos(Math.PI*angle/180);
         speed_y=this.speed*Math.sin(Math.PI*angle/180);
         if(way==3||way==4||way==53||way==54) rotation=(int)(rand*300);//生成随机初始角度(旋转)
+        //if(way==6||way==7||way==123) {center_x=x;center_y=y-w/2;this.y=y-w/2;}//标准轨迹圆心坐标
+        if(way==6||way==7||way==123) {center_x=x-w/2;center_y=y-h/2;this.y=y-h/2;}//标准轨迹圆心坐标
     }
-    //初始化构造函数5  加入方式和角度和形状
+    //初始化构造函数5  加入方式和角度和 最后一个参数为：形状 / 特殊指令
     public bossbullet(int x, int y, int screenW, int screenH, double speed, Bitmap bitmap,int way,int angle,String form) {
         basic_Init(x,y,screenW,screenH,speed,bitmap);
         move_way=way;
@@ -107,6 +115,11 @@ public class bossbullet {
         speed_y=this.speed*Math.sin(Math.PI*angle/180);
         rotation=angle-90;//※※因为除了圆以外的形状都在这里，所以判定的旋转角度初始化也在这里
         if(way==3||way==4||way==53||way==54) rotation=(int)(rand*300);//生成随机初始角度(旋转)
+        //if(way==6||way==7||way==123) {center_x=x;center_y=y-w/2;this.y=y-w/2;}//标准轨迹圆心坐标
+        if(way==6||way==7||way==123) {center_x=x-w/2;center_y=y-h/2;this.y=y-h/2;}//标准轨迹圆心坐标
+        //解析特殊指令
+        String[] str=form.split("-");
+        if(str[0].equals("123")) turn_level=Integer.parseInt(str[1]);
         this.form=form;
     }
 
@@ -124,9 +137,13 @@ public class bossbullet {
     public void Draw_Bullet(Canvas canvas) {
         //
     }
+
+    //------------------------------------------------move函数-----------------------------------------------------------
     //子弹移动总函数--总之需要带参数了（大概）
     public void Move() {
-        if(move_way==50) Move_50();
+        if(move_way==123) Move_123();
+        else if(move_way==121) Move_121();
+        else if(move_way==50) Move_50();
         else if(move_way==30) Move_30();
         else if(move_way==12) Move_12();
         else if(move_way==7) Move_7();
@@ -224,8 +241,12 @@ public class bossbullet {
             y+=speed_y;
             move_waytime++;
             if(move_waytime>100){//1秒后开始每次重置方向   根据中心--角度--角度+90--得到新的xy速度
-                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90;//注！这两句只能处理顺时针的情况
+                /*注！这两句只能处理顺时针的情况
+                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90;
                 else angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+270;
+                */
+                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90-180*turn;//注！这两句可以处理顺逆时针的情况
+                else angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+270-540*turn;
                 speed_x=speed*Math.cos(Math.PI*angle/180);
                 speed_y=speed*Math.sin(Math.PI*angle/180);
                 move_waytime=0;//重置用于前进
@@ -244,8 +265,8 @@ public class bossbullet {
             y+=speed_y;
             move_waytime++;
             if(move_waytime>50){//1秒后开始每次重置方向   根据中心--角度--角度+90--得到新的xy速度
-                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90;//注！这两句只能处理顺时针的情况
-                else angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+270;
+                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90-180*turn;//注！这两句可以处理顺逆时针的情况
+                else angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+270-540*turn;
                 speed_x=speed*Math.cos(Math.PI*angle/180);
                 speed_y=speed*Math.sin(Math.PI*angle/180);
                 y+=speed;center_y+=speed;//整体向下
@@ -291,6 +312,7 @@ public class bossbullet {
         }
     }
 
+    //----------------------------------------------------------------关卡特殊弹10~59------------------------------------------------------------------
 
     //子弹移动12：（仿魔炮）加速自由落体运动 出场停驻1秒，然后180°密集下落
     public void Move_12() {
@@ -425,6 +447,61 @@ public class bossbullet {
     //永恒冰冻：冰冻效果弹，弹幕密度大降，但冰冻弹范围大增，中弹累积减速，5层永久冰冻
     //EX冰之梦 ？？？
 
+    //-----------------------------------------------新关卡100~400，百位对应角色，十位对应关卡，个位为该关卡特殊弹幕 12阶段一 34阶段二 56阶段三 789阶段四----------------------------------------------------------
+    //子弹移动121：崩岳
+    public void Move_121() {//每隔0.3秒刷新一次位置
+        if(isBullet) {
+            move_waytime++;
+            if(move_waytime>=15){
+                x+=speed_x*15;
+                y+=speed_y*15;
+                move_waytime=0;
+            }
+            //else if(move_way>10){//11-15 技能的判定范围不同 移动方式也不同 如魔炮不动，枪高速移动，玉极慢移动，连追正常
+            if(y>screenH*2||y<-screenH) isBullet=false;//大范围不注重即时注销 通用
+            else if(x<-screenH||x>screenW+screenH) isBullet=false;
+            //if(y>screenH+h*2||y<-h*2) isBullet=false;//大图用这个
+            //else if(x<-w*2||x>screenW+w*2) isBullet=false;
+        }
+    }
+    //子弹移动123：荡千军
+    public void Move_123() {//用于追逐？用圆心
+        if(isBullet) {
+            x+=speed_x;
+            y+=speed_y;
+            move_waytime++;
+            //level 0(默认) ： 速度x5，全程5秒，效果为300°
+            //level 1(默认) ： 速度x3，全程5秒，效果为200° 复数在场可能
+            //level 2(辅3)  ：      作为无空缝但很快死亡的墙壁挡在3前面
+            //level 3       ： 速度x2：全程8秒     TODO 以下面实际为准
+            if(turn_level==3){
+                if(move_waytime>400) isBullet=false;
+                if(move_waytime==100) speed*=2;
+            }
+            else if(turn_level==1){
+                if(move_waytime>250) isBullet=false;
+                if(move_waytime==100) speed*=2;
+            }
+            else if(turn_level==0){
+                if(move_waytime>220) isBullet=false;
+                if(move_waytime==150) speed*=5;
+            }
+            if(move_waytime>100){//1秒后开始每次重置方向   根据中心--角度--角度+90--得到新的xy速度
+                if(x>=center_x) angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+90-180*turn;//注！这两句可以处理顺逆时针的情况
+                else angle=(int)Math.toDegrees(Math.atan((y-center_y)/(x-center_x)))+270-540*turn;
+                speed_x=speed*Math.cos(Math.PI*angle/180);
+                speed_y=speed*Math.sin(Math.PI*angle/180);
+                //move_waytime=0;//重置用于前进
+            }
+            //else if(move_way>10){//11-15 技能的判定范围不同 移动方式也不同 如魔炮不动，枪高速移动，玉极慢移动，连追正常
+            if(y>screenH*2||y<-screenH) isBullet=false;//大范围不注重即时注销 通用
+            else if(x<-screenH||x>screenW+screenH) isBullet=false;
+            //if(y>screenH+h*2||y<-h*2) isBullet=false;//大图用这个
+            //else if(x<-w*2||x>screenW+w*2) isBullet=false;
+        }
+    }
+
+    //--------------------------------------------------------------------------分割线------------------------------------------------------------------------------
 
     //TODO ☆☆☆☆  碰撞检测  ☆☆☆☆
     //子弹碰撞处理+ 提前结束生命(圆形)
@@ -465,7 +542,7 @@ public class bossbullet {
                     }break;
                 default://case "round":圆形（默认）
                     if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))<= myR+w/2) {
-                    //if(Math.abs(centre_bossX-centre_x)<r && Math.abs(centre_bossY-centre_y)<r)
+                    //if(Math.abs(centre_BOSS.bossX-centre_x)<r && Math.abs(centre_BOSS.bossY-centre_y)<r)
                     isBullet=false;//提前结束生命
                     return true;//调用hp--的函数?
                 }break;
@@ -496,7 +573,7 @@ public class bossbullet {
                     }break;
                 default://case "round":圆形（默认）
                     if (Math.sqrt(Math.pow(dx, 2)+ Math.pow(dy,2))<= myR+w/2+30) {
-                        //if(Math.abs(centre_bossX-centre_x)<r && Math.abs(centre_bossY-centre_y)<r)
+                        //if(Math.abs(centre_BOSS.bossX-centre_x)<r && Math.abs(centre_BOSS.bossY-centre_y)<r)
                         return true;//调用hp--的函数?
                     }break;
             }

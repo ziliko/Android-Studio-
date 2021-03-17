@@ -40,6 +40,7 @@ import okhttp3.Response;
 public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.stage3_return
     //系统公告
     private String notice="\n※※版本更新?.?.?※※\n咕咕 咕咕咕咕咕咕" +
+            "\n※※版本更新1.2.0※※\n1.奖励瞬发 代码优化" +
             "\n※※版本更新1.1.5※※\n1.关卡初步完成\n2.音效BUG修复\n3.加入4角色,子弹各不同\n4.加入灵敏度设置" +
             "\n※※版本更新1.1.2※※\n1.三种难度设定\n2.高难度目前较粗糙" +
             "\n※※版本更新1.1.1※※\n1.界面优化+三阶段弹幕设计\n2.音效有BUG,重开app即可\n3.初始判断范围缩小一半"+
@@ -49,15 +50,18 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             "\n※※版本更新1.0.5※※\n1.装备系统已实装\n2.云档功能不可用(需要服务器)\n3.装备合成实装需讨论\n4.新手上路，请多指BUG\n";
 
     private static final String TAG = "page2";
-    private int player,difficuliy;
-    private Spinner spinner1, spinner2;
+    private int player,difficuliy,skill;
+    //下拉框相关的定义
+    private Spinner spinner1, spinner2, spinner3;
     private static final String[] PLAYERS = {"白毛", "蓝毛","紫毛","画家?"};
     private static final String[] DIFFICULTY = {"EASY", "NORMAL", "HARD"};
-    private ArrayAdapter<String> adapter1, adapter2;
+    private              String[] SKILL = {"默认","Ⅰ","Ⅱ","Ⅲ","Ⅳ"};//动态变化?
+    private ArrayAdapter<String> adapter1, adapter2, adapter3;
 
     private MySQLite helper;
     private SQLiteDatabase mydb;
     private EditText edit1;
+    private TextView sp_player,sp_dif,sp_skill;//下拉框文字改动
     private TextView text12,text52;//不同难度不同爆率
     private Button button001,button002,//云存档/读档
             button0,button1,button2,button3,button4,button5,//关卡按钮
@@ -67,7 +71,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
     private SharedPreferences sp;//存放3个装备，以及5个判定？
     private static final String PREFERENCE_NAME="zks";
     int ide = 0;  //全局变量?
-    int str,dex,dex_area,hp,skill;//全局变量：属性
+    int str,dex,dex_area,hp;//全局变量：属性
 
     private Handler handler1, handler2;//网络编程
     private static final String IP = "192.168.43.164";
@@ -119,6 +123,21 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         Cursor cursor = mydb.rawQuery("SELECT * FROM " + helper.ITEM_NAME, null);   //cuisor 光标，也称游标 https://blog.csdn.net/android_zyf/article/details/53420267
         if (cursor.getCount() == 0) {//无数据则导入初始数据(存在问题第一次运行直接点抽卡会出错)
             mydb.execSQL("INSERT INTO item " +                  //后续加入合成：5个低级换1个高级
+                    "select'0','上帝之眼','0','无敌,没有结算,用于鉴赏并查漏补缺'"+
+                    //不需要全优，不同自机不同，生命方面有得分奖励
+                    "union all select'10','力Ⅰ','0','攻击+5'\n" +
+                    "union all select'11','力Ⅱ','0','攻击+10'\n" +
+                    "union all select'20','敏Ⅰ','0','判定-25|攻速+2'\n" +
+                    "union all select'21','敏Ⅱ','0','判定-50|攻速+4'\n" +
+                    "union all select'30','体Ⅰ','0','体力+2'\n" +
+                    "union all select'31','体Ⅱ','0','体力+4'\n" +
+                    "union all select'40','全Ⅰ','0','攻击+2|判定-10|攻速+1|体力+1'\n"+
+                    "union all select'41','全Ⅱ','0','攻击+4|判定-20|攻速+2|体力+2'\n"+
+                    "union all select'50','技Ⅰ','0','skill1:滑稽一闪'\n" +    //通用技能，1234? 另外技能是单独的一个装备栏
+                    "union all select'51','技Ⅱ','0','skill2:怒稽连斩'\n" +
+                    "union all select'52','技Ⅲ','0','skill3:时稽结界'\n" +
+                    "union all select'53','技Ⅳ','0','skill4:诛稽剑阵'\n");
+            /*旧版本
                     "select'1','A型源码','0','攻击+2'\n" +              //(10-max)攻击+2|4|6|10
                     "union all select'2','B型源码','0','判定-15|攻速+1'\n" +    //(100-1)(自机判定范围)-10%|20|30|49 && (基础6)攻速+1234
                     "union all select'3','C型源码','0','体力+1'\n" +    //(2-8)生命+1|2|3|4
@@ -138,14 +157,20 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                     "union all select'17','Q型源码','0','skill4:诛稽剑阵'\n" +
                     "union all select'18','R型源码','0','攻击+5|判定-39|攻速+2|体力+2'\n"+
                     "union all select'19','上帝之眼','0','无敌,没有结算,用于鉴赏并查漏补缺'");
+            */
         }
     }
 
     //控件初始化
     private void initViews() {
         edit1 = (EditText) findViewById(R.id.edit01);
+        sp_player=(TextView) findViewById(R.id.textView03);
+        sp_dif=(TextView) findViewById(R.id.textView04);
+        sp_skill=(TextView) findViewById(R.id.textView05);
         text12=(TextView) findViewById(R.id.textView12);
         text52=(TextView) findViewById(R.id.textView52);
+        tv10 = (TextView) findViewById(R.id.text10);
+        tv10.setText(notice);//进入游戏自动显示公告
         button001 = (Button) findViewById(R.id.button001);
         button002 = (Button) findViewById(R.id.button002);
         button0 = (Button) findViewById(R.id.button00);
@@ -162,8 +187,6 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         button72 = (Button) findViewById(R.id.button072);
         button73 = (Button) findViewById(R.id.button073);
         button74 = (Button) findViewById(R.id.button074);
-        tv10 = (TextView) findViewById(R.id.text10);
-        tv10.setText(notice);//进入游戏自动显示公告
         sp = getSharedPreferences(PREFERENCE_NAME, MODE_PRIVATE);
     }
 
@@ -228,22 +251,24 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             }
         });
          */
+        //手动修改
         button0.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //if(value==3)
                 if(edit1.getText().toString().equals(""))//处理了输入为空时的闪退
-                    new AlertDialog.Builder(page2.this).setTitle("警告").setMessage("请输入物品序号!").show();
+                    new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("请输入物品序号!").show();
                 else{
                     int id = Integer.parseInt(edit1.getText().toString());
-                    if(id==19) {updateData(id);Toast.makeText(page2.this, "已获得上帝之眼", Toast.LENGTH_SHORT).show();}
-                    else Toast.makeText(page2.this, "你只能获得序号为19的物品", Toast.LENGTH_SHORT).show();
+                    if(id==0) {updateData(id);Toast.makeText(page2.this, "已获得上帝之眼", Toast.LENGTH_SHORT).show();}
+                    else Toast.makeText(page2.this, "你只能获得物品0，其他东西没啥必要(努力下都能得到)", Toast.LENGTH_SHORT).show();
                     if(id>2020) updateData(id-2020);
                     //else Toast.makeText(page2.this, "修改数据成功", Toast.LENGTH_SHORT).show();
                 }
 
             }
         });
+        //云存档/重置存档
         button001.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {//云存档功能未实现,暂改成重置存档(危)
@@ -255,6 +280,12 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                     public void onClick(DialogInterface dialog, int which) {
                         String sql = "UPDATE " + helper.ITEM_NAME + " SET number=0";
                         mydb.execSQL(sql);
+                        //同时清空已穿装备
+                        SharedPreferences.Editor editor=sp.edit();
+                        editor.remove("equipment1");editor.remove("equipment2");editor.remove("equipment3");
+                        editor.remove("kind0");editor.remove("kind1");editor.remove("kind2");editor.remove("kind3");editor.remove("kind4");editor.remove("kind5");editor.remove("kind6");
+                        str=10;dex=6;dex_area=100;hp=2;skill=0;     //editor.putInt("str",10);editor.putInt("dex",6);editor.putInt("dex_area",100);editor.putInt("hp",2);editor.putInt("skill",0);//属性初始化
+                        editor.commit();
                         new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("你存档没了！").show();
                     }
                 });
@@ -265,6 +296,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                 /*edit1.setText("");edit2.setText("");edit3.setText("");*/
             }
         });
+        //云读档(需服务器)
         button002.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -397,6 +429,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             }
         });
          */
+        //修改账号密码
         button61.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -404,20 +437,22 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                 startActivity(intent1);//跳转到修改账号密码界面
             }
         });
+        //修改设置
         button62.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {//改灵敏度   //(待实现)装备合成 --涉及概率调整，兑换数目策划，平衡性等
+            public void onClick(View v) { //改灵敏度  //(待实现)装备合成 --涉及概率调整，兑换数目策划，平衡性等
                 Intent intent1 = new Intent(page2.this, setting.class);//registerActivity
                 startActivity(intent1);//跳转到修改设置界面
                 /*edit1.setText("");edit2.setText("");edit3.setText("");*/
             }
         });
+        //进行装备
         button63.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {//进行装备
-                final String[] items = {"无","A" ,"B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","上帝之眼","清空装备"};
+            public void onClick(View v) {
+                final String[] items = {"无","上帝之眼","力Ⅰ" ,"力Ⅱ","敏Ⅰ","敏Ⅱ","体Ⅰ","体Ⅱ","全Ⅰ","全Ⅱ","清空装备"};//TODO 待优化
                 final AlertDialog.Builder dialog4 = new AlertDialog.Builder (page2.this)
-                        .setTitle ("选择你要装备的源码:")
+                        .setTitle ("选择你要携带的装备:")
                         //参数1：选项。参数2：默认选项。参数3：选中时的事件
                         .setSingleChoiceItems (items, 0, new DialogInterface.OnClickListener () {
                             @Override
@@ -431,29 +466,39 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                                 String equip1=sp.getString("equipment1","无");//A型源码
                                 String equip2=sp.getString("equipment2","无");
                                 String equip3=sp.getString("equipment3","无");
-                                if(ide==20) {//清空背包(清空同时把物品数量归还到背包数据库)
-                                    //if(S.1非空) sql;并清零
-                                    if(!equip1.equals("无")){
-                                        String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip1+"'";//字符串需加单引号?
-                                        mydb.execSQL(sql);
-                                    }
-                                    if(!equip2.equals("无")){
-                                        String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip2+"'";//字符串需加单引号
-                                        mydb.execSQL(sql);
-                                    }
-                                    if(!equip3.equals("无")){
-                                        String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip3+"'";//字符串需加单引号
-                                        mydb.execSQL(sql);
-                                    }
-                                    SharedPreferences.Editor editor=sp.edit();
-                                    editor.remove("equipment1");editor.remove("equipment2");editor.remove("equipment3");
-                                    editor.remove("kind0");editor.remove("kind1");editor.remove("kind2");editor.remove("kind3");editor.remove("kind4");editor.remove("kind5");editor.remove("kind6");
-                                    str=10;dex=6;dex_area=100;hp=2;skill=0;     //editor.putInt("str",10);editor.putInt("dex",6);editor.putInt("dex_area",100);editor.putInt("hp",2);editor.putInt("skill",0);//属性初始化
-                                    editor.commit();
-                                    new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("已清空装备并归还至背包!").show();
-                                    //Toast.makeText (page2.this,"已清空装备并归还至背包!",Toast.LENGTH_LONG).show ();
+                                switch(ide){
+                                    case 1: ide=0;break;
+                                    case 2: case 3: ide=8+ide;break;
+                                    case 4: case 5: ide=16+ide;break;
+                                    case 6: case 7: ide=24+ide;break;
+                                    case 8: case 9: ide=32+ide;break;
+                                    case 10://清空背包(清空同时把物品数量归还到背包数据库)
+                                        //TODO 版本更新，装备不再减少当前数量 卸下也不用再归还
+                                        //if(S.1非空) sql;并清零
+                                        /*
+                                        if(!equip1.equals("无")){
+                                            String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip1+"'";//字符串需加单引号?
+                                            mydb.execSQL(sql);
+                                        }
+                                        if(!equip2.equals("无")){
+                                            String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip2+"'";//字符串需加单引号
+                                            mydb.execSQL(sql);
+                                        }
+                                        if(!equip3.equals("无")){
+                                            String sql = "UPDATE " + helper.ITEM_NAME + " SET number=number+1 WHERE name='" + equip3+"'";//字符串需加单引号
+                                            mydb.execSQL(sql);
+                                        }
+                                        */
+                                        SharedPreferences.Editor editor=sp.edit();
+                                        editor.remove("equipment1");editor.remove("equipment2");editor.remove("equipment3");
+                                        editor.remove("kind0");editor.remove("kind1");editor.remove("kind2");editor.remove("kind3");editor.remove("kind4");editor.remove("kind5");editor.remove("kind6");
+                                        str=10;dex=6;dex_area=100;hp=2;skill=0;     //editor.putInt("str",10);editor.putInt("dex",6);editor.putInt("dex_area",100);editor.putInt("hp",2);editor.putInt("skill",0);//属性初始化
+                                        editor.commit();
+                                        new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("已清空装备并归还至背包!").show();
+                                        ide=-1;break;
+                                    default:ide=-1;break;
                                 }
-                                else if(0<ide&&ide<20) {
+                                if(ide>=0) {
                                     /**/
                                     String sql= "SELECT * FROM " + helper.ITEM_NAME+" WHERE id="+ide;
                                     Cursor cursor = mydb.rawQuery(sql, null);   //cuisor 光标，也称游标 https://blog.csdn.net/android_zyf/article/details/53420267
@@ -468,20 +513,20 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                                         else {
                                             SharedPreferences.Editor editor=sp.edit();
                                             editor.putInt(result,1);    //将该种类置为1，防止重复装备
-                                            String sql2 = "UPDATE " + helper.ITEM_NAME + " SET number=number-1 WHERE id=" + ide;
-                                            mydb.execSQL(sql2);         //数据库减一
+                                            //String sql2 = "UPDATE " + helper.ITEM_NAME + " SET number=number-1 WHERE id=" + ide;
+                                            //mydb.execSQL(sql2);         //数据库减一
                                             property_change(ide);       //更新属性
                                             if(equip1.equals("无")) editor.putString("equipment1",name);
                                             else if(equip2.equals("无")) editor.putString("equipment2",name);
                                             else editor.putString("equipment3",name);
                                             editor.commit();
-                                            if(ide==19) new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("成功装备上帝之眼").show();
-                                            else new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("成功装备"+items[ide]+"型源码!").show();
-                                            //Toast.makeText (page2.this,"成功装备"+items[ide]+"型源码!",Toast.LENGTH_LONG).show ();
+                                            new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("装备成功").show();
+                                            //if(ide==0) new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("成功装备上帝之眼").show();
+                                            //else new AlertDialog.Builder(page2.this).setTitle("提示").setMessage("成功装备"+items[ide]+"型源码!").show();
                                         }
                                     }
                                 }
-                                ide=0;//重置
+                                ide=-1;//重置
                             }
                         });   //点击确定后对话框消失，并且打印所选内容
                 dialog4.show ();
@@ -490,6 +535,54 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             }
         });
         button64.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //开始真的游戏
+                Update_SharedPreference();
+                Intent intent1 = new Intent(page2.this, page3.class);
+                intent1.putExtra("stage", "10");
+                startActivity(intent1);
+                //不关闭当前page2
+            }
+        });
+        //查看系统公告
+        button71.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(tv10.getText().toString().equals("")) tv10.setText(notice);
+                else tv10.setText(null);//关闭背包(清空文本框)
+            }
+        });
+        //查看属性和装备面板
+        button72.setOnClickListener(new View.OnClickListener() {//显示：属性面板
+            @Override
+            public void onClick(View v) {
+                String equip1=sp.getString("equipment1","无");//A型源码
+                String equip2=sp.getString("equipment2","无");
+                String equip3=sp.getString("equipment3","无");
+                String equipment="\n装备一："+equip1+"\n装备二："+equip2+"\n装备三："+equip3;
+                String desc="";
+                if(skill==0) desc+="\n默认技能:无敌1秒";
+                else if(skill==1) desc+="\n通用技能Ⅰ:无敌1秒并造成攻击力x5的一段伤害";
+                else if(skill==2) desc+="\n通用技能Ⅱ:无敌2秒并造成攻击力x2的三段伤害";
+                else if(skill==3) desc+="\n通用技能Ⅲ:无敌3秒并暂停时间,只有你能行动,3秒后开始结算";
+                else if(skill==4) desc+="\n通用技能Ⅳ:无敌3秒并禁锢BOSS,造成攻击力x2的七段伤害";
+                desc+="\n";
+                String property="\n攻击力："+str+"\n攻速："+dex+"\n判定范围："+dex_area+"\n体力："+hp+"\nSKILL："+skill+desc;
+                if(tv10.getText().toString().equals("")) tv10.setText(equipment+property);//关闭背包(清空文本框)
+                else tv10.setText(null);//关闭背包(清空文本框)
+            }
+        });
+        //查看背包
+        button73.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(tv10.getText().toString().equals("")) queryData();//查看背包(将数据库数据导入文本框)
+                else tv10.setText(null);//关闭背包(清空文本框)
+            }
+        });
+        //结束游戏
+        button74.setOnClickListener(new View.OnClickListener() {//显示：查看背包
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder dialog = new AlertDialog.Builder (page2.this);
@@ -508,70 +601,41 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                 //finish();//结束游戏
             }
         });
-        button71.setOnClickListener(new View.OnClickListener() {//显示：系统公告
-            @Override
-            public void onClick(View v) {
-                if(tv10.getText().toString().equals("")) tv10.setText(notice);
-                else tv10.setText(null);//关闭背包(清空文本框)
-            }
-        });
-        button72.setOnClickListener(new View.OnClickListener() {//显示：属性面板
-            @Override
-            public void onClick(View v) {//显示：属性面板
-                String desc="";
-                if(skill==1) desc+="\n技能效果:无敌1秒并造成攻击力x5的一段伤害";
-                else if(skill==2) desc+="\n技能效果:无敌2秒并造成攻击力x2的三段伤害";
-                else if(skill==3) desc+="\n技能效果:无敌3秒并暂停时间,只有你能行动,3秒后开始结算";
-                else if(skill==4) desc+="\n技能效果:无敌3秒并控制BOSS,造成攻击力x2的七段伤害";
-                desc+="\n";
-                String property="\n攻击力："+str+"\n攻速："+dex+"\n判定范围："+dex_area+"\n体力："+hp+"\nSKILL："+skill+desc;
-                if(tv10.getText().toString().equals("")) tv10.setText(property);//关闭背包(清空文本框)
-                else tv10.setText(null);//关闭背包(清空文本框)
-            }
-        });
-        button73.setOnClickListener(new View.OnClickListener() {//显示：已穿装备
-            @Override
-            public void onClick(View v) {
-                String equip1=sp.getString("equipment1","无");//A型源码
-                String equip2=sp.getString("equipment2","无");
-                String equip3=sp.getString("equipment3","无");
-                String equipment="\n装备一："+equip1+"\n装备二："+equip2+"\n装备三："+equip3;
-                if(tv10.getText().toString().equals("")) tv10.setText(equipment);//关闭背包(清空文本框)
-                else tv10.setText(null);//关闭背包(清空文本框)
-            }
-        });
-        button74.setOnClickListener(new View.OnClickListener() {//显示：查看背包
-            @Override
-            public void onClick(View v) {
-                if(tv10.getText().toString().equals("")) queryData();//查看背包(将数据库数据导入文本框)
-                else tv10.setText(null);//关闭背包(清空文本框)
-            }
-        });
     }
 
     private void initSpinner(){
         spinner1 = (Spinner) findViewById(R.id.spinner01);
         spinner2 = (Spinner) findViewById(R.id.spinner02);
+        spinner3 = (Spinner) findViewById(R.id.spinner03);
         adapter1 = new ArrayAdapter<String>(page2.this, android.R.layout.simple_spinner_item, PLAYERS);
         adapter2 = new ArrayAdapter<String>(page2.this, android.R.layout.simple_spinner_item, DIFFICULTY);
+        adapter3 = new ArrayAdapter<String>(page2.this, android.R.layout.simple_spinner_item, SKILL);
         spinner1.setAdapter(adapter1);
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (player!=0&&position==0) {
                     player=position;
+                    sp_player.setText("人物A");
+                    spinner3.setAdapter(adapter3);//二级联动
                     Toast.makeText(page2.this, "白毛控!", Toast.LENGTH_SHORT).show();
                 }
                 else if (position==1) {
                     player=position;
+                    sp_player.setText("人物B");
+                    spinner3.setAdapter(adapter3);//二级联动
                     Toast.makeText(page2.this, "稳中求胜", Toast.LENGTH_SHORT).show();
                 }
                 else if (position==2) {
                     player=position;
+                    sp_player.setText("人物C");
+                    spinner3.setAdapter(adapter3);//二级联动
                     Toast.makeText(page2.this, "给我你的心作纪念", Toast.LENGTH_SHORT).show();
                 }
                 else if (position==3) {
                     player=position;
+                    sp_player.setText("人物D");
+                    spinner3.setAdapter(adapter3);//二级联动
                     Toast.makeText(page2.this, "一个病娇的画家?", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -585,18 +649,50 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                 //原版：20 15 10 5
                 if (position == 0&&difficuliy!=0) {
                     difficuliy=0;
-                    text12.setText("40 10 0  0");text52.setText("10 0");
-                    Toast.makeText(page2.this, "无装备也可上手的程度", Toast.LENGTH_SHORT).show();
+                    sp_dif.setText("难度E");
+                    text12.setText("50% Ⅰ");text52.setText("50% Ⅰ Ⅱ");
+                    Toast.makeText(page2.this, "可获取新手装备", Toast.LENGTH_SHORT).show();
                 }
                 else if (position == 1) {
                     difficuliy=1;
-                    text12.setText("0  39 10 1");text52.setText("19 1");
-                    Toast.makeText(page2.this, "正常游戏的程度", Toast.LENGTH_SHORT).show();
+                    sp_dif.setText("难度N");
+                    text12.setText("50% Ⅱ");text52.setText("50% Ⅲ Ⅳ");
+                    Toast.makeText(page2.this, "可获取进阶装备", Toast.LENGTH_SHORT).show();
                 }
                 else if (position == 2) {
                     difficuliy=2;
-                    text12.setText("0  0  40 10");text52.setText("40 10");
-                    Toast.makeText(page2.this, "乱七八糟的程度", Toast.LENGTH_SHORT).show();
+                    sp_dif.setText("难度H");
+                    text12.setText("???");text52.setText("???");
+                    Toast.makeText(page2.this, "无奖励，挑战与练习", Toast.LENGTH_SHORT).show();
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}//text4.setText("任何选项都没被选！");
+        });
+        spinner3.setAdapter(adapter3);
+        spinner3.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                //修改携带的技能，TODO 技能数组 当修改角色下拉框时同步改动X
+                //                 TODO 存在困难，改成全显示，然后检索背包
+                //改成通用x4+角色特殊技能的列表，且每次修改技能并不是通用x4则需要重置为0
+                if(position==0) {
+                    skill=0;//默认技能无需检索
+                    sp_skill.setText("技能0");
+                }
+                else{
+                    int ide=position+49;//技能1对应ID为50
+                    String sql= "SELECT * FROM " + helper.ITEM_NAME+" WHERE id="+ide;
+                    Cursor cursor = mydb.rawQuery(sql, null);   //cuisor 光标，也称游标 https://blog.csdn.net/android_zyf/article/details/53420267
+                    if (cursor.moveToNext()) {
+                        int number = cursor.getInt(2);
+                        if(number==0) Toast.makeText (page2.this,"未获得该技能!",Toast.LENGTH_LONG).show ();
+                        else {
+                            skill=position;
+                            sp_skill.setText("技能"+position);
+                            Toast.makeText (page2.this,"成功装备技能"+position,Toast.LENGTH_LONG).show ();
+                        }
+                    }
                 }
             }
             @Override
@@ -644,7 +740,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         Cursor cursor = mydb.rawQuery(sql, null);   //cuisor 光标，也称游标 https://blog.csdn.net/android_zyf/article/details/53420267
         while (cursor.moveToNext()) {//需要改成表格输出？
             String des = cursor.getString(0);
-            //要更新的数据写在这里
+            /*要更新的数据写在这里
             if (des.equals("判定-10|攻速+1")) {
                 mydb.execSQL("INSERT INTO item select'19','上帝之眼','0','无敌,没有结算,用于鉴赏并查漏补缺'");
                 mydb.execSQL("UPDATE item SET description='判定-15|攻速+1' WHERE id=2");
@@ -654,23 +750,28 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
                 mydb.execSQL("UPDATE item SET description='判定-60|攻速+4' WHERE id=15");
                 mydb.execSQL("UPDATE item SET description='攻击+5|判定-39|攻速+2|体力+2' WHERE id=18");
             }
+            */
         }
         sql= "SELECT * FROM " + helper.ITEM_NAME;
         cursor = mydb.rawQuery(sql, null);   //cuisor 光标，也称游标 https://blog.csdn.net/android_zyf/article/details/53420267
         result = "\n";
+        int i=0;
         while (cursor.moveToNext()) {//需要改成表格输出？
             int id = cursor.getInt(0);
-            String name = cursor.getString(1);
+            String name = String.format("%-6s",cursor.getString(1));
             int number = cursor.getInt(2);
             String des = cursor.getString(3);
             //String temp = "序号:"+id + ",物品名:" + name + ",数量:" + number + "\n";
-            String temp = id + "," + name + "x" + number + ":"+des+"\n";
+            //String temp = id + "," + name + "x" + number + ":"+des+"\n";
+            String temp = i+"."+name+"x"+number + "  " + ":"+des+"\n";
             result += temp;
+            i++;
         }
         tv10.setText(result);
     }
 
-    private int kind_judge(int id) {//源码5种类判别函数
+    private int kind_judge(int id) {//装备5种类判别函数
+        /*
         if(id==1||id==5||id==9||id==14)         return 1;
         else if(id==2||id==6||id==10||id==15)   return 2;
         else if(id==3||id==7||id==11||id==16)   return 3;
@@ -678,10 +779,26 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
         else if(id==13||id==18)                 return 5;
         else if(id==19)                         return 6;
         else return 0;
+        */
+        return id/10;
     }//DELETE FROM student WHERE id=1
 
     private void property_change(String equip){//源码效果实装函数
         switch (equip){
+            case "上帝之眼":{hp+=9999;break;}
+            case "力Ⅰ":{str+=5;break;}
+            case "力Ⅱ":{str+=10;break;}
+            case "敏Ⅰ":{dex+=2;dex_area-=25;break;}
+            case "敏Ⅱ":{dex+=4;dex_area-=50;break;}
+            case "体Ⅰ":{hp+=2;break;}
+            case "体Ⅱ":{hp+=4;break;}
+            case "全Ⅰ":{str+=2;dex+=1;dex_area-=10;hp+=1;break;}
+            case "全Ⅱ":{str+=4;dex+=0;dex_area-=20;hp+=2;break;}
+            default:break;
+        }
+        /*
+        switch (equip){
+
             case "A型源码":{str+=2;break;}
             case "B型源码":{dex+=1;dex_area-=15;break;}
             case "C型源码":{hp+=1;break;}
@@ -703,8 +820,22 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             case"上帝之眼":{hp+=9999;break;}
             default:break;
         }
+        */
     }
     private void property_change(int id){//源码效果实装函数
+        switch (id){
+            case 0:{hp+=9999;break;}
+            case 10:{str+=5;break;}
+            case 11:{str+=10;break;}
+            case 20:{dex+=2;dex_area-=25;break;}
+            case 21:{dex+=4;dex_area-=50;break;}
+            case 30:{hp+=2;break;}
+            case 31:{hp+=4;break;}
+            case 40:{str+=2;dex+=1;dex_area-=10;hp+=1;break;}
+            case 41:{str+=4;dex+=0;dex_area-=20;hp+=2;break;}
+            default:break;
+        }
+        /*旧版本
         switch (id){
             case 1:{str+=2;break;}
             case 2:{dex+=1;dex_area-=15;break;}
@@ -727,6 +858,7 @@ public class page2 extends AppCompatActivity {//implements Stage3_SurfaceView.st
             case 19:{hp+=9999;break;}
             default:break;
         }
+        */
     }
 
     @Override
